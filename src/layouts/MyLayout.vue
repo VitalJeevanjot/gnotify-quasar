@@ -3,8 +3,8 @@
   <q-layout-header>
     <q-toolbar color="primary" :inverted="$q.theme === 'ios'">
       <q-toolbar-title align="center">
-        Guru Nanak Dev University
-        <div slot="subtitle">GNDU notifications</div>
+        G
+        <div slot="subtitle">G</div>
       </q-toolbar-title>
     </q-toolbar>
   </q-layout-header>
@@ -14,122 +14,21 @@
         <q-tab label="Admin Board" default slot="title" name="tab-1" icon="dashboard"/>
         <q-tab label="Student board" slot="title" name="tab-2" icon="developer_board"/>
       </q-tabs>
+      <!-- // random string generator for urls https://helloacm.com/api/random/?n=128 -->
       <div class="row justify-center">
-        <q-card class="q-ma-sm" inline style="width: 400px;">
+        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='book in books.val()' :key='book.Title'>
           <q-card-media>
-            <img style="width: 400px; height: 250px; object-fit:cover" src="https://preview.redd.it/spo5q1n66gg11.jpg?width=640&crop=smart&auto=webp&s=b06647b00048ec8d32aa22f50ed7a825db9d6717">
+          <q-video src="https://www.youtube.com/embed/0zZbbH1kuxc" style="width: 400px; height:250px;"/>
           </q-card-media>
           <q-card-title>
-            Cafe Basilico
-            <div slot="right" class="row items-center">
-              <q-icon name="place" /> 250 ft
-            </div>
+              <a href="#" style="color: #000000; text-decoration: none;">{{book.Title}}</a>
           </q-card-title>
           <q-card-main>
-            <p>$・Italian, Cafe</p>
-            <p class="text-faded">Small plates, salads & sandwiches in an intimate setting.</p>
+            <a href="#" style="color: #000000; text-decoration: none;"><p class="text-faded">{{book.Description}}</p></a>
           </q-card-main>
-          <q-card-separator />
-          <q-card-actions>
-            <q-btn flat round dense icon="event" />
-            <q-btn flat label="5:30PM" />
-            <q-btn flat label="7:30PM" />
-            <q-btn flat label="9:00PM" />
-            <q-btn flat color="primary" label="Reserve" />
-          </q-card-actions>
         </q-card>
-        <q-card class="q-ma-sm" inline style="width: 400px;">
-          <q-card-media>
-            <img style="width: 400px; height: 250px; object-fit:cover" src="https://preview.redd.it/spo5q1n66gg11.jpg?width=640&crop=smart&auto=webp&s=b06647b00048ec8d32aa22f50ed7a825db9d6717">
-          </q-card-media>
-          <q-card-title>
-            Cafe Basilico
-            <div slot="right" class="row items-center">
-              <q-icon name="place" /> 250 ft
-            </div>
-          </q-card-title>
-          <q-card-main>
-            <p>$・Italian, Cafe</p>
-            <p class="text-faded">Small plates, salads & sandwiches in an intimate setting.</p>
-          </q-card-main>
-          <q-card-separator />
-          <q-card-actions>
-            <q-btn flat round dense icon="event" />
-            <q-btn flat label="5:30PM" />
-            <q-btn flat label="7:30PM" />
-            <q-btn flat label="9:00PM" />
-            <q-btn flat color="primary" label="Reserve" />
-          </q-card-actions>
-        </q-card>
-        <q-card class="q-ma-sm" inline style="width: 400px;">
-          <q-card-media>
-            <img style="width: 400px; height: 250px; object-fit:cover" src="https://preview.redd.it/spo5q1n66gg11.jpg?width=640&crop=smart&auto=webp&s=b06647b00048ec8d32aa22f50ed7a825db9d6717">
-          </q-card-media>
-          <q-card-title>
-            Cafe Basilico
-            <div slot="right" class="row items-center">
-              <q-icon name="place" /> 250 ft
-            </div>
-          </q-card-title>
-          <q-card-main>
-            <p>$・Italian, Cafe</p>
-            <p class="text-faded">Small plates, salads & sandwiches in an intimate setting.</p>
-          </q-card-main>
-          <q-card-separator />
-          <q-card-actions>
-            <q-btn flat round dense icon="event" />
-            <q-btn flat label="5:30PM" />
-            <q-btn flat label="7:30PM" />
-            <q-btn flat label="9:00PM" />
-            <q-btn flat color="primary" label="Reserve" />
-          </q-card-actions>
-        </q-card>
-        <q-card class="q-ma-sm" inline style="width: 400px;">
-          <q-card-media>
-            <img style="width: 400px; height: 250px; object-fit:cover" src="https://preview.redd.it/spo5q1n66gg11.jpg?width=640&crop=smart&auto=webp&s=b06647b00048ec8d32aa22f50ed7a825db9d6717">
-          </q-card-media>
-          <q-card-title>
-            Cafe Basilico
-            <div slot="right" class="row items-center">
-              <q-icon name="place" /> 250 ft
-            </div>
-          </q-card-title>
-          <q-card-main>
-            <p>$・Italian, Cafe</p>
-            <p class="text-faded">Small plates, salads & sandwiches in an intimate setting.</p>
-          </q-card-main>
-          <q-card-separator />
-          <q-card-actions>
-            <q-btn flat round dense icon="event" />
-            <q-btn flat label="5:30PM" />
-            <q-btn flat label="7:30PM" />
-            <q-btn flat label="9:00PM" />
-            <q-btn flat color="primary" label="Reserve" />
-          </q-card-actions>
-        </q-card>
-        <q-card class="q-ma-sm" inline style="width: 400px;">
-          <q-card-media>
-            <img style="width: 400px; height: 250px; object-fit:cover" src="https://preview.redd.it/spo5q1n66gg11.jpg?width=640&crop=smart&auto=webp&s=b06647b00048ec8d32aa22f50ed7a825db9d6717">
-          </q-card-media>
-          <q-card-title>
-            Cafe Basilico
-            <div slot="right" class="row items-center">
-              <q-icon name="place" /> 250 ft
-            </div>
-          </q-card-title>
-          <q-card-main>
-            <p>$・Italian, Cafe</p>
-            <p class="text-faded">Small plates, salads & sandwiches in an intimate setting.</p>
-          </q-card-main>
-          <q-card-separator />
-          <q-card-actions>
-            <q-btn flat round dense icon="event" />
-            <q-btn flat label="5:30PM" />
-            <q-btn flat label="7:30PM" />
-            <q-btn flat label="9:00PM" />
-            <q-btn flat color="primary" label="Reserve" />
-          </q-card-actions>
-        </q-card>
+        ...
+        ...
       </div>
     </q-page>
   </q-page-container>
@@ -146,7 +45,7 @@ export default {
   data () {
     return {
       leftDrawerOpen: this.$q.platform.is.desktop,
-      books: this.$bookref
+      books: [{}]
     }
   },
   methods: {
@@ -154,8 +53,10 @@ export default {
   },
   mounted () {
     // let book = null
-    this.$bookref.on('value', function (snapshot) {
-      console.log(snapshot.val()[1])
+    this.$bookref.on('value', (snapshot) => {
+      console.log(snapshot.val())
+      this.books = snapshot
+      console.log(this.books.val()[1]['Random Seed'])
     }, function (errorObject) {
       console.log('The read failed: ' + errorObject.code)
     })

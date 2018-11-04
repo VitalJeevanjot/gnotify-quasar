@@ -64,7 +64,8 @@ module.exports = function(ctx) {
         'QTabs',
         'QTab',
         'QTabPane',
-        'QRouteTab'
+        'QRouteTab',
+        'QVideo'
       ],
       directives: [
         'Ripple'
