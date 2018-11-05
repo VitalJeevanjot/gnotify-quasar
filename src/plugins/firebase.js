@@ -14,4 +14,5 @@ let db = app.database()
 export default ({ app, router, Vue }) => {
   // something to do
   Vue.prototype.$bookref = db.ref('books')
+  Vue.prototype.$studentref = db.ref('student')
 }

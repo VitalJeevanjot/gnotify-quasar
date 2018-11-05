@@ -16,7 +16,7 @@
       </q-tabs>
       <!-- // random string generator for urls https://helloacm.com/api/random/?n=128 -->
       <div class="row justify-center">
-        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='book in books.val()' :key='book.Title'>
+        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='book in books' :key='book.Title'>
           <q-card-media>
           <q-video src="https://www.youtube.com/embed/0zZbbH1kuxc" style="width: 400px; height:250px;"/>
           </q-card-media>
@@ -55,8 +55,13 @@ export default {
     // let book = null
     this.$bookref.on('value', (snapshot) => {
       console.log(snapshot.val())
-      this.books = snapshot
-      console.log(this.books.val()[1]['Random Seed'])
+      this.books = snapshot.val()
+      console.log(this.books[1]['Random Seed'])
+    }, function (errorObject) {
+      console.log('The read failed: ' + errorObject.code)
+    })
+    this.$studentref.on('value', (snapshoti) => {
+      // console.log(snapshoti.val())
     }, function (errorObject) {
       console.log('The read failed: ' + errorObject.code)
     })
