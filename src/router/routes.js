@@ -7,6 +7,7 @@ const routes = [
       { path: 'index', component: () => import('pages/Index.vue') }
     ]
   }
+
 ]
 
 // Always leave this as last one

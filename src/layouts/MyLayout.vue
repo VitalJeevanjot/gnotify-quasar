@@ -32,8 +32,6 @@
             </a>
           </q-card-main>
         </q-card>
-        ...
-        ...
       </div>
     </q-page>
   </q-page-container>
