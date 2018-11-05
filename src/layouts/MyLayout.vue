@@ -10,21 +10,26 @@
   </q-layout-header>
   <q-page-container>
     <q-page>
-      <q-tabs swipeable color="black" align="justify">
-        <q-tab label="Admin Board" default slot="title" name="tab-1" icon="dashboard"/>
-        <q-tab label="Student board" slot="title" name="tab-2" icon="developer_board"/>
+      <q-tabs swipeable color="black" align="justify" v-model="selectedTab">
+        <q-tab label="Admin Board" slot="title" name="tab-1" icon="dashboard" />
+        <q-tab label="Student board" slot="title" name="tab-2" icon="developer_board" />
       </q-tabs>
       <!-- // random string generator for urls https://helloacm.com/api/random/?n=128 -->
       <div class="row justify-center">
         <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='book in books' :key='book.Title'>
           <q-card-media>
-          <q-video src="https://www.youtube.com/embed/0zZbbH1kuxc" style="width: 400px; height:250px;"/>
+            <!-- <img v-bind:src="book.Image" style="width: 400px; height:250px;"/> -->
+            <div class="wrap" style="overflow: hidden;">
+            <object width="400px" height="250px" style="object-fit:cover" scrolling='no' v-bind:data="book.Image" frameborder="0" allowfullscreen></object>
+          </div>
           </q-card-media>
           <q-card-title>
-              <a href="#" style="color: #000000; text-decoration: none;">{{book.Title}}</a>
+            <a href="#" style="color: #000000; text-decoration: none;">{{book.Title}}</a>
           </q-card-title>
           <q-card-main>
-            <a href="#" style="color: #000000; text-decoration: none;"><p class="text-faded">{{book.Description}}</p></a>
+            <a href="#" style="color: #000000; text-decoration: none;">
+              <p class="text-faded">{{book.Description}}</p>
+            </a>
           </q-card-main>
         </q-card>
         ...
@@ -45,7 +50,8 @@ export default {
   data () {
     return {
       leftDrawerOpen: this.$q.platform.is.desktop,
-      books: [{}]
+      books: [{}],
+      selectedTab: 'tab-1'
     }
   },
   methods: {
@@ -61,7 +67,7 @@ export default {
       console.log('The read failed: ' + errorObject.code)
     })
     this.$studentref.on('value', (snapshoti) => {
-      // console.log(snapshoti.val())
+      console.log(snapshoti.val())
     }, function (errorObject) {
       console.log('The read failed: ' + errorObject.code)
     })
