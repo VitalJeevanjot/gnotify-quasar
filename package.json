@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "firebase": "^5.5.7",
+    "firebaseui": "^3.4.1",
     "vuefire": "^1.4.5"
   },
   "devDependencies": {
