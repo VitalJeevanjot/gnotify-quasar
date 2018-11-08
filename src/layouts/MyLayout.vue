@@ -67,31 +67,30 @@
       </div>
     </div>
     <br>
-    <div style="padding: 10px" class="row justify-center" color="black">
-      <div class="row justify-center">
-        <div class="col-8">
-          <q-input type="url" readonly :error="error_thumbnail" v-model="thumbnail" float-label="Add Thumbnail *" clearable />
-        </div>
-          <div class="col-2" >
-            <q-btn flat icon="file_upload" align="right"/>
+    <div style="padding: 10px" class="row justify-around" color="black">
+        <div class="col-md-5">
+          <q-uploader :url="uploader_url" @add="thumbnailAdded" @remove:cancel="thumbnailRemoved" @remove:done="thumbnailRemoved" @remove:abort="thumbnailRemoved"  hide-upload-button :name='thumbnail' float-label="Upload Thumbnail" extensions=".jpeg, .jpg, .png, .gif" :error="error_thumbnail"/>
+          <!-- <q-input type="url" readonly :error="error_thumbnail" v-model="thumbnail" float-label="Add Thumbnail *" clearable />
+          <q-btn flat dense icon="file_upload" class="float-right" css="position: absolute;"/> -->
           </div>
 
-          <div class="col-8">
-          <q-input type="url" readonly :error="error_profilepic" v-model="profile_pic" float-label="Add Profile Pic *" clearable />
+          <div class="col-md-5">
+            <q-uploader :url="uploader_url" @add="ppadded" @remove:cancel="ppRemoved" @remove:done="ppRemoved" @remove:abort="ppRemoved" hide-upload-button :name="profile_pic" float-label="Upload Profile Picture" extensions=".jpeg, .jpg, .png, .gif" :error="error_profilepic"/>
+          <!-- <q-input type="url" readonly :error="error_profilepic" v-model="profile_pic" float-label="Add Profile Pic *" clearable />
+          <q-btn flat dense icon="file_upload" class="float-right"/> -->
           </div>
-          <div class="col-2" >
-            <q-btn flat icon="file_upload" align="right"/>
-          </div>
-        <!-- Instead of input add a button here -->
-        <div class="col-4">
+    </div>
+    <div class="row justify-center">
+      <!-- Instead of input add a button here -->
+        <div class="col-7 q-pr-sm">
           <q-input type="tel" :error="error_mobile" v-model="text" required prefix="+91" float-label="Mobile number *" clearable :maxlength="10" :decimals="0" placeholder="Enter 10 digit mobile number" />
         </div>
-
-        <div class="col-4">
+        <div class="col-6 q-pl-sm">
         <q-input type="tel" :error="error_verification" v-model="code" :disable="disable" float-label="Verification Code *" clearable :maxlength="6" :decimals="0" />
-      </div>
-      </div>
-      <p class="text-light">You will receive SMS message with a code and standard rates will apply.</p>
+        </div>
+        <div class="col-8 q-pl-sm">
+          <p class="text-light" align="center">You will receive SMS message with a code and standard rates will apply.</p>
+        </div>
     </div>
     <div class="row q-pa-sm justify-center">
       <q-btn :label="send" id="sendSms" @click.native="sendsms" />
@@ -147,7 +146,6 @@
 import {
   required,
   minLength,
-  url,
   maxLength
 } from 'vuelidate/lib/validators'
 export default {
@@ -173,10 +171,23 @@ export default {
       error_thumbnail: false,
       error_title: false,
       error_profilepic: false,
-      profile_pic: ''
+      profile_pic: '',
+      uploader_url: '' // Add server url to handle upload
     }
   },
   methods: {
+    ppadded (files) {
+      this.profile_pic = files[0].name
+    },
+    thumbnailAdded (files) {
+      this.thumbnail = files[0].name
+    },
+    ppRemoved (file) {
+      this.profile_pic = ''
+    },
+    thumbnailRemoved (file) {
+      this.thumbnail = ''
+    },
     openStudentBoard () {
       console.log('opening S board')
       this.books = []
@@ -188,11 +199,12 @@ export default {
       })
     },
     sendsms () {
+      console.log(this.thumbnail)
       if (this.$v.text.$invalid) {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true
       } else if (this.$v.thumbnail.$invalid) {
-        this.$q.notify('A Thumbnail image or video url is required')
+        this.$q.notify('A Thumbnail image or video is required')
         this.error_thumbnail = true
         this.error_mobile = false
       } else if (this.$v.title.$invalid) {
@@ -210,6 +222,7 @@ export default {
         this.error_mobile = false
         this.error_thumbnail = false
         this.error_title = false
+        this.error_profilepic = false
         let mobileNo = '+91' + this.text
         console.log(mobileNo)
         try {
@@ -260,7 +273,7 @@ export default {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true
       } else if (this.$v.thumbnail.$invalid) {
-        this.$q.notify('A Thumbnail image or video url is required')
+        this.$q.notify('A Thumbnail image or video is required')
         this.error_mobile = false
         this.error_thumbnail = true
       } else if (this.$v.title.$invalid) {
@@ -338,8 +351,7 @@ export default {
       minLength: minLength(10)
     },
     thumbnail: {
-      required,
-      url
+      required
     },
     code: {
       required,
@@ -351,8 +363,7 @@ export default {
       maxlength: maxLength(90)
     },
     profile_pic: {
-      required,
-      url
+      required
     }
   }
 }

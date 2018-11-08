@@ -72,7 +72,8 @@ module.exports = function(ctx) {
         'QModalLayout',
         'QInput',
         'QEditor',
-        'QItemTile'
+        'QItemTile',
+        'QUploader'
       ],
       directives: [
         'Ripple'
