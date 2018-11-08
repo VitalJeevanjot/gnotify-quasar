@@ -256,23 +256,30 @@ export default {
         this.error_title = false
         window.confirmationResult.confirm(this.code).then((result) => {
           this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
-            this.$firebase.database().ref('books/' + this.books.length).set({
-              Body: this.model,
-              Comments: 'later',
-              Image: this.thumbnail,
-              Mobile: this.text,
-              Random_Seed: response.data,
-              Recent_Post: this.books.length - 1,
-              Title: this.title,
-              Upvotes: '0',
-              DatTime: new Date()
-            }).then(() => { this.opened = false }).catch((err) => {
-              this.$q.notify(err.message)
+            this.$axios.get('http://worldclockapi.com/api/json/utc/now').then((res) => {
+              let date = new Date(res.data.currentDateTime)
+              this.$firebase.database().ref('books/' + this.books.length).set({
+                Body: this.model,
+                Comments: 'later',
+                Image: this.thumbnail,
+                Mobile: this.text,
+                Random_Seed: response.data,
+                Recent_Post: this.books.length - 1,
+                Title: this.title,
+                Upvotes: '0',
+                DatTime: date
+              }).then(() => {
+                this.opened = false
+              }).catch((err) => {
+                this.$q.notify(err.message)
+              })
+            }).catch((err) => {
+              this.$q.notify(err)
             })
           }).catch((err) => {
             this.$q.notify(err)
           })
-        }).catch((err) => this.$q.notify(err.message))
+        }).catch((err) => this.$q.notify(err))
       }
     }
   },
