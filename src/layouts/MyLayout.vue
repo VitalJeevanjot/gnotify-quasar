@@ -68,11 +68,28 @@
     </div>
     <br>
     <div style="padding: 10px" class="row justify-center" color="black">
-      <div class="col-8">
-        <q-input type="url" :error="error_thumbnail" v-model="thumbnail" float-label="Add Thumbnail URL *" clearable />
+      <div class="row justify-center">
+        <div class="col-8">
+          <q-input type="url" readonly :error="error_thumbnail" v-model="thumbnail" float-label="Add Thumbnail *" clearable />
+        </div>
+          <div class="col-2" >
+            <q-btn flat icon="file_upload" align="right"/>
+          </div>
+
+          <div class="col-8">
+          <q-input type="url" readonly :error="error_profilepic" v-model="profile_pic" float-label="Add Profile Pic *" clearable />
+          </div>
+          <div class="col-2" >
+            <q-btn flat icon="file_upload" align="right"/>
+          </div>
         <!-- Instead of input add a button here -->
-        <q-input type="tel" :error="error_mobile" v-model="text" required prefix="+91" float-label="Mobile number *" clearable :maxlength="10" :decimals="0" placeholder="Enter 10 digit mobile number" />
+        <div class="col-4">
+          <q-input type="tel" :error="error_mobile" v-model="text" required prefix="+91" float-label="Mobile number *" clearable :maxlength="10" :decimals="0" placeholder="Enter 10 digit mobile number" />
+        </div>
+
+        <div class="col-4">
         <q-input type="tel" :error="error_verification" v-model="code" :disable="disable" float-label="Verification Code *" clearable :maxlength="6" :decimals="0" />
+      </div>
       </div>
       <p class="text-light">You will receive SMS message with a code and standard rates will apply.</p>
     </div>
@@ -154,7 +171,9 @@ export default {
       error_mobile: false,
       error_verification: false,
       error_thumbnail: false,
-      error_title: false
+      error_title: false,
+      error_profilepic: false,
+      profile_pic: ''
     }
   },
   methods: {
@@ -181,6 +200,12 @@ export default {
         this.error_thumbnail = false
         this.error_mobile = false
         this.error_title = true
+      } else if (this.$v.profile_pic.$invalid) {
+        this.$q.notify('Enter a valid title with a length of 8 characters or more but less than 90.')
+        this.error_thumbnail = false
+        this.error_mobile = false
+        this.error_title = false
+        this.error_profilepic = true
       } else {
         this.error_mobile = false
         this.error_thumbnail = false
@@ -249,11 +274,18 @@ export default {
         this.error_title = false
         this.error_verification = true
         this.$q.notify('Please enter correct 6 digit verification code')
+      } else if (this.$v.profile_pic.$invalid) {
+        this.$q.notify('Enter a valid title with a length of 8 characters or more but less than 90.')
+        this.error_thumbnail = false
+        this.error_mobile = false
+        this.error_title = false
+        this.error_profilepic = true
       } else {
         this.error_mobile = false
         this.error_thumbnail = false
         this.error_verification = false
         this.error_title = false
+        this.error_profilepic = false
         window.confirmationResult.confirm(this.code).then((result) => {
           this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
             this.$axios.get('http://worldclockapi.com/api/json/utc/now').then((res) => {
@@ -267,7 +299,8 @@ export default {
                 Recent_Post: this.books.length - 1,
                 Title: this.title,
                 Upvotes: '0',
-                DatTime: date
+                DatTime: date,
+                Profile_Pic: this.Profile_Pic
               }).then(() => {
                 this.opened = false
               }).catch((err) => {
@@ -316,6 +349,10 @@ export default {
       required,
       minLength: minLength(8),
       maxlength: maxLength(90)
+    },
+    profile_pic: {
+      required,
+      url
     }
   }
 }
