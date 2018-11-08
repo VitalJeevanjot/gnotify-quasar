@@ -99,18 +99,24 @@
       <!-- // random string generator for urls https://helloacm.com/api/random/?n=128 -->
       <div class="row justify-center">
         <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='book in books' :key='book.Title'>
+          <q-item>
+       <q-item-side :avatar="book.Profile_Pic" />
+       <q-item-main>
+         <a href="#" style="color: #000000; text-decoration: none">
+         <q-item-tile label>{{book.Title}}</q-item-tile>
+         <q-item-tile sublabel>{{book.DateTime}}</q-item-tile>
+       </a>
+       </q-item-main>
+     </q-item>
           <q-card-media>
             <!-- <img v-bind:src="book.Image" style="width: 400px; height:250px;"/> -->
             <div class="wrap" style="overflow: hidden;">
               <object width="400px" height="250px" style="object-fit:cover" v-bind:data="book.Image" frameborder="0"></object>
             </div>
           </q-card-media>
-          <q-card-title>
-            <a href="#" style="color: #000000; text-decoration: none;">{{book.Title}}</a>
-          </q-card-title>
           <q-card-main>
             <a href="#" style="color: #000000; text-decoration: none;">
-              <p class="text-faded">{{book.Description}}</p>
+              <p class="text-faded">{{book.Mobile}}</p>
             </a>
           </q-card-main>
         </q-card>
@@ -258,7 +264,8 @@ export default {
               Random_Seed: response.data,
               Recent_Post: this.books.length - 1,
               Title: this.title,
-              Upvotes: '0'
+              Upvotes: '0',
+              DatTime: new Date()
             }).then(() => { this.opened = false }).catch((err) => {
               this.$q.notify(err.message)
             })
