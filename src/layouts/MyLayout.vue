@@ -259,7 +259,7 @@ export default {
               Recent_Post: this.books.length - 1,
               Title: this.title,
               Upvotes: '0'
-            }).catch((err) => {
+            }).then(() => { this.opened = false }).catch((err) => {
               this.$q.notify(err.message)
             })
           }).catch((err) => {
