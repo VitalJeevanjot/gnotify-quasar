@@ -8,6 +8,10 @@
     </div>
     <div class="row">
       <div class="col-12">
+          <q-input type="text" :maxlength="90" inverted color="secondary" no-shadow :error="error_title" v-model="title" float-label="Add Title *" clearable />
+      </div>
+      <br>
+      <div class="col-12">
         <q-editor v-model="model" :readonly="readonly" :disable="disable_editor" :toolbar="[
      ['bold', 'italic', 'strike', 'underline', 'subscript', 'superscript'],
      ['token', 'hr', 'link', 'custom_btn'],
@@ -65,15 +69,16 @@
     <br>
     <div style="padding: 10px" class="row justify-center" color="black">
       <div class="col-8">
-        <q-input type="url" v-model="thumbnail" float-label="Add Thumbnail URL" />
-        <q-input v-model="text" required prefix="+91" float-label="Mobile number *" placeholder="Enter 10 digit mobile number" />
-        <q-input type="number" v-model="code" :disable="disable" float-label="Verification Code" />
+        <q-input type="url" :error="error_thumbnail" v-model="thumbnail" float-label="Add Thumbnail URL *" clearable />
+        <!-- Instead of input add a button here -->
+        <q-input type="tel" :error="error_mobile" v-model="text" required prefix="+91" float-label="Mobile number *" clearable :maxlength="10" :decimals="0" placeholder="Enter 10 digit mobile number" />
+        <q-input type="tel" :error="error_verification" v-model="code" :disable="disable" float-label="Verification Code *" clearable :maxlength="6" :decimals="0" />
       </div>
       <p class="text-light">You will receive SMS message with a code and standard rates will apply.</p>
     </div>
     <div class="row q-pa-sm justify-center">
-      <q-btn :label="send" id="loginbtn" @click.native="sendsms" />
-      <q-btn :hidden="hidden" label="Confirm" color="primary" id="loginbtn" @click.native="sendsms" class="q-ml-sm" />
+      <q-btn :label="send" id="sendSms" @click.native="sendsms" />
+      <q-btn :hidden="hidden" label="Confirm" color="primary" @click.native="publishPost" class="q-ml-sm" />
     </div>
   </q-modal>
   <q-layout-header>
@@ -116,6 +121,12 @@
 </template>
 
 <script>
+import {
+  required,
+  minLength,
+  url,
+  maxLength
+} from 'vuelidate/lib/validators'
 export default {
   name: 'MyLayout',
   data () {
@@ -125,6 +136,7 @@ export default {
       opened: false,
       selectedTab: 'tab-1',
       text: '',
+      title: '',
       code: '',
       disable: true,
       hidden: true,
@@ -132,7 +144,11 @@ export default {
       model: '<h3>Header 3</h3><div>Normal text; <b>bold</b>; <i>italic</i>; <strike>strike-trough</strike>; <u style="font-weight: bold; font-style: italic;">bold, italic and underline</u>;</div><div><u>A <i style="font-weight: bold;">mo</i>re <i style="font-weight: bold;">com</i>plica</u>ted example.</div><div><br></div><div>Link to <a href="http://quasar-framework.org">Quasar Documentation</a></div><div><font face="Courier New">Using "Courier New" font.</font></div><div><ul><li>Vue</li><li>Webpack</li></ul><ol><li>Website</li><li>App</li><ol><li>Mobile (Cordova)</li><li>Electron</li></ol></ol><div style="text-align: center;">Center aligned text</div></div><div style="text-align: right;">Right aligned</div>',
       disable_editor: false,
       readonly: false,
-      thumbnail: ''
+      thumbnail: '',
+      error_mobile: false,
+      error_verification: false,
+      error_thumbnail: false,
+      error_title: false
     }
   },
   methods: {
@@ -147,28 +163,45 @@ export default {
       })
     },
     sendsms () {
-      let mobileNo = '+91' + this.text
-      console.log(mobileNo)
-      try {
-        this.$firebase.auth().signInWithPhoneNumber(mobileNo, window.recaptchaVerifier).then((confirmationResult) => {
-          window.confirmationResult = confirmationResult
-          this.disable = false
-          this.hidden = false
-          this.send = 'Resend'
-          this.$q.notify({
-            message: 'Sent!',
-            color: 'primary'
+      if (this.$v.text.$invalid) {
+        this.$q.notify('10 Digit Mobile number is required.')
+        this.error_mobile = true
+      } else if (this.$v.thumbnail.$invalid) {
+        this.$q.notify('A Thumbnail image or video url is required')
+        this.error_thumbnail = true
+        this.error_mobile = false
+      } else if (this.$v.title.$invalid) {
+        this.$q.notify('Enter a valid title with a length of 8 characters or more but less than 90.')
+        this.error_thumbnail = false
+        this.error_mobile = false
+        this.error_title = true
+      } else {
+        this.error_mobile = false
+        this.error_thumbnail = false
+        this.error_title = false
+        let mobileNo = '+91' + this.text
+        console.log(mobileNo)
+        try {
+          this.$firebase.auth().signInWithPhoneNumber(mobileNo, window.recaptchaVerifier).then((confirmationResult) => {
+            window.confirmationResult = confirmationResult
+            this.disable = false
+            this.hidden = false
+            this.send = 'Resend'
+            this.$q.notify({
+              message: 'Sent!',
+              color: 'primary'
+            })
+            console.log(confirmationResult)
+          }).catch((err) => {
+            this.disable = true
+            this.hidden = true
+            this.send = 'Send'
+            this.$q.notify(err.message)
+            console.log(err)
           })
-          console.log(confirmationResult)
-        }).catch((err) => {
-          this.disable = true
-          this.hidden = true
-          this.send = 'Send'
-          this.$q.notify(err.message)
-          console.log(err)
-        })
-      } catch (err) {
-        this.$q.notify(err)
+        } catch (err) {
+          this.$q.notify(err)
+        }
       }
     },
     openAdminBoard () {
@@ -177,7 +210,7 @@ export default {
       this.$bookref.on('value', (snapshot) => {
         console.log(snapshot.val())
         this.books = snapshot.val()
-        console.log(this.books[1]['Random Seed'])
+        // console.log(this.books[1]['Random Seed'])
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
       })
@@ -190,6 +223,50 @@ export default {
     },
     closeModal () {
       this.opened = false
+    },
+    publishPost () {
+      if (this.$v.text.$invalid) {
+        this.$q.notify('10 Digit Mobile number is required.')
+        this.error_mobile = true
+      } else if (this.$v.thumbnail.$invalid) {
+        this.$q.notify('A Thumbnail image or video url is required')
+        this.error_mobile = false
+        this.error_thumbnail = true
+      } else if (this.$v.title.$invalid) {
+        this.$q.notify('Enter a valid title with a length of 8 or more but less than 90.')
+        this.error_thumbnail = false
+        this.error_mobile = false
+        this.error_title = true
+      } else if (this.$v.code.$invalid) {
+        this.error_mobile = false
+        this.error_thumbnail = false
+        this.error_title = false
+        this.error_verification = true
+        this.$q.notify('Please enter correct 6 digit verification code')
+      } else {
+        this.error_mobile = false
+        this.error_thumbnail = false
+        this.error_verification = false
+        this.error_title = false
+        window.confirmationResult.confirm(this.code).then((result) => {
+          this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
+            this.$firebase.database().ref('books/' + this.books.length).set({
+              Body: this.model,
+              Comments: 'later',
+              Image: this.thumbnail,
+              Mobile: this.text,
+              Random_Seed: response.data,
+              Recent_Post: this.books.length - 1,
+              Title: this.title,
+              Upvotes: '0'
+            }).catch((err) => {
+              this.$q.notify(err.message)
+            })
+          }).catch((err) => {
+            this.$q.notify(err)
+          })
+        }).catch((err) => this.$q.notify(err.message))
+      }
     }
   },
   mounted () {
@@ -198,17 +275,34 @@ export default {
     this.$bookref.on('value', (snapshot) => {
       console.log(snapshot.val())
       this.books = snapshot.val()
-      console.log(this.books[1]['Random Seed'])
     }, function (errorObject) {
       console.log('The read failed: ' + errorObject.code)
     })
-    window.recaptchaVerifier = new this.$firebase.auth.RecaptchaVerifier('loginbtn', {
+    window.recaptchaVerifier = new this.$firebase.auth.RecaptchaVerifier('sendSms', {
       'size': 'invisible',
       'callback': function (response) {
-        this.onCreate()
       }
     })
     //  console.log(this.books[1])
+  },
+  validations: {
+    text: {
+      required,
+      minLength: minLength(10)
+    },
+    thumbnail: {
+      required,
+      url
+    },
+    code: {
+      required,
+      minLength: minLength(6)
+    },
+    title: {
+      required,
+      minLength: minLength(8),
+      maxlength: maxLength(90)
+    }
   }
 }
 </script>

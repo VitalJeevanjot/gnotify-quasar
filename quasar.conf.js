@@ -4,7 +4,9 @@ module.exports = function(ctx) {
   return {
     // app plugins (/src/plugins)
     plugins: ['firebase',
-      'vuefire'
+      'vuefire',
+      'vuelidate',
+      'axios'
     ],
     css: [
       'app.styl'
