@@ -8,7 +8,7 @@
     </div>
     <div class="row">
       <div class="col-12">
-          <q-input type="text" :maxlength="90" inverted color="secondary" no-shadow :error="error_title" v-model="title" float-label="Add Title *" clearable />
+        <q-input type="text" :maxlength="90" inverted color="secondary" no-shadow :error="error_title" v-model="title" float-label="Add Title *" clearable />
       </div>
       <br>
       <div class="col-12">
@@ -68,29 +68,31 @@
     </div>
     <br>
     <div style="padding: 10px" class="row justify-around" color="black">
-        <div class="col-md-5">
-          <q-uploader :url="uploader_url" @add="thumbnailAdded" @remove:cancel="thumbnailRemoved" @remove:done="thumbnailRemoved" @remove:abort="thumbnailRemoved"  hide-upload-button :name='thumbnail' float-label="Upload Thumbnail" extensions=".jpeg, .jpg, .png, .gif" :error="error_thumbnail"/>
-          <!-- <q-input type="url" readonly :error="error_thumbnail" v-model="thumbnail" float-label="Add Thumbnail *" clearable />
+      <div class="col-md-5">
+        <q-uploader :url="uploader_url" @add="thumbnailAdded" @remove:cancel="thumbnailRemoved" @remove:done="thumbnailRemoved" @remove:abort="thumbnailRemoved" hide-upload-button :name='thumbnail' float-label="Upload Thumbnail" extensions=".jpeg, .jpg, .png, .gif, .mp4"
+          :error="error_thumbnail" />
+        <!-- <q-input type="url" readonly :error="error_thumbnail" v-model="thumbnail" float-label="Add Thumbnail *" clearable />
           <q-btn flat dense icon="file_upload" class="float-right" css="position: absolute;"/> -->
-          </div>
+      </div>
 
-          <div class="col-md-5">
-            <q-uploader :url="uploader_url" @add="ppadded" @remove:cancel="ppRemoved" @remove:done="ppRemoved" @remove:abort="ppRemoved" hide-upload-button :name="profile_pic" float-label="Upload Profile Picture" extensions=".jpeg, .jpg, .png, .gif" :error="error_profilepic"/>
-          <!-- <q-input type="url" readonly :error="error_profilepic" v-model="profile_pic" float-label="Add Profile Pic *" clearable />
+      <div class="col-md-5">
+        <q-uploader :url="uploader_url" @add="ppadded" @remove:cancel="ppRemoved" @remove:done="ppRemoved" @remove:abort="ppRemoved" hide-upload-button :name="profile_pic" float-label="Upload Profile Picture" extensions=".jpeg, .jpg, .png, .gif"
+          :error="error_profilepic" />
+        <!-- <q-input type="url" readonly :error="error_profilepic" v-model="profile_pic" float-label="Add Profile Pic *" clearable />
           <q-btn flat dense icon="file_upload" class="float-right"/> -->
-          </div>
+      </div>
     </div>
     <div class="row justify-center">
       <!-- Instead of input add a button here -->
-        <div class="col-7 q-pr-sm">
-          <q-input type="tel" :error="error_mobile" v-model="text" required prefix="+91" float-label="Mobile number *" clearable :maxlength="10" :decimals="0" placeholder="Enter 10 digit mobile number" />
-        </div>
-        <div class="col-6 q-pl-sm">
+      <div class="col-7 q-pr-sm">
+        <q-input type="tel" :error="error_mobile" v-model="text" required prefix="+91" float-label="Mobile number *" clearable :maxlength="10" :decimals="0" placeholder="Enter 10 digit mobile number" />
+      </div>
+      <div class="col-6 q-pl-sm">
         <q-input type="tel" :error="error_verification" v-model="code" :disable="disable" float-label="Verification Code *" clearable :maxlength="6" :decimals="0" />
-        </div>
-        <div class="col-8 q-pl-sm">
-          <p class="text-light" align="center">You will receive SMS message with a code and standard rates will apply.</p>
-        </div>
+      </div>
+      <div class="col-8 q-pl-sm">
+        <p class="text-light" align="center">You will receive SMS message with a code and standard rates will apply.</p>
+      </div>
     </div>
     <div class="row q-pa-sm justify-center">
       <q-btn :label="send" id="sendSms" @click.native="sendsms" />
@@ -116,14 +118,14 @@
       <div class="row justify-center">
         <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='book in books' :key='book.Title'>
           <q-item>
-       <q-item-side :avatar="book.Profile_Pic" />
-       <q-item-main>
-         <a href="#" style="color: #000000; text-decoration: none">
-         <q-item-tile label>{{book.Title}}</q-item-tile>
-         <q-item-tile sublabel>{{book.DateTime}}</q-item-tile>
-       </a>
-       </q-item-main>
-     </q-item>
+            <q-item-side :avatar="book.Profile_Pic" />
+            <q-item-main>
+              <a href="#" style="color: #000000; text-decoration: none">
+                <q-item-tile label>{{book.Title}}</q-item-tile>
+                <q-item-tile sublabel>{{book.DateTime}}</q-item-tile>
+              </a>
+            </q-item-main>
+          </q-item>
           <q-card-media>
             <!-- <img v-bind:src="book.Image" style="width: 400px; height:250px;"/> -->
             <div class="wrap" style="overflow: hidden;">
@@ -172,14 +174,34 @@ export default {
       error_title: false,
       error_profilepic: false,
       profile_pic: '',
-      uploader_url: '' // Add server url to handle upload
+      uploader_url: '', // Add server url to handle upload
+      timestamp: null
     }
   },
   methods: {
-    ppadded (files) {
+    async ppadded (files) {
+      await this.setTimeStamp()
+      // console.log(files[0])
       this.profile_pic = files[0].name
+      console.log(files[0])
+      const formData = new FormData()
+      formData.append('file', files[0])
+      formData.append('tags', `g, board, notice`)
+      formData.append('upload_preset', 'myldschl') // Replace the preset name with your own
+      formData.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
+      formData.append('timestamp', (this.timestamp / 1000) | 0)
+      // Make an AJAX upload request using Axios (replace Cloudinary URL below with your own)
+      this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formData, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      }).then(response => {
+        const data = response.data
+        const fileURL = data.secure_url // You should store this URL for future references in your app
+        console.log(data)
+        console.log(fileURL)
+      })
     },
     thumbnailAdded (files) {
+      console.log(files[0])
       this.thumbnail = files[0].name
     },
     ppRemoved (file) {
@@ -268,7 +290,8 @@ export default {
     closeModal () {
       this.opened = false
     },
-    publishPost () {
+    async publishPost () {
+      await this.setTimeStamp() // Updating time here everytime before posting.
       if (this.$v.text.$invalid) {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true
@@ -301,36 +324,40 @@ export default {
         this.error_profilepic = false
         window.confirmationResult.confirm(this.code).then((result) => {
           this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
-            this.$axios.get('http://worldclockapi.com/api/json/utc/now').then((res) => {
-              let date = new Date(res.data.currentDateTime)
-              this.$firebase.database().ref('books/' + this.books.length).set({
-                Body: this.model,
-                Comments: 'later',
-                Image: this.thumbnail,
-                Mobile: this.text,
-                Random_Seed: response.data,
-                Recent_Post: this.books.length - 1,
-                Title: this.title,
-                Upvotes: '0',
-                DatTime: date,
-                Profile_Pic: this.Profile_Pic
-              }).then(() => {
-                this.opened = false
-              }).catch((err) => {
-                this.$q.notify(err.message)
-              })
+            this.$firebase.database().ref('books/' + this.books.length).set({
+              Body: this.model,
+              Comments: 'later',
+              Image: this.thumbnail,
+              Mobile: this.text,
+              Random_Seed: response.data,
+              Recent_Post: this.books.length - 1,
+              Title: this.title,
+              Upvotes: '0',
+              DatTime: this.timestamp,
+              Profile_Pic: this.Profile_Pic
+            }).then(() => {
+              this.opened = false
             }).catch((err) => {
-              this.$q.notify(err)
+              this.$q.notify(err.message)
             })
           }).catch((err) => {
             this.$q.notify(err)
           })
         }).catch((err) => this.$q.notify(err))
       }
+    },
+    async setTimeStamp () {
+      await this.$axios.get('http://worldclockapi.com/api/json/utc/now').then((res) => {
+        this.timestamp = new Date(res.data.currentDateTime)
+        // console.log(this.timestamp / 1000 + 'OK')
+      }).catch((err) => {
+        this.$q.notify(err)
+      })
     }
   },
   mounted () {
     // let book = null
+    this.setTimeStamp()
     this.$firebase.auth().useDeviceLanguage()
     this.$bookref.on('value', (snapshot) => {
       console.log(snapshot.val())
@@ -340,8 +367,7 @@ export default {
     })
     window.recaptchaVerifier = new this.$firebase.auth.RecaptchaVerifier('sendSms', {
       'size': 'invisible',
-      'callback': function (response) {
-      }
+      'callback': function (response) {}
     })
     //  console.log(this.books[1])
   },
