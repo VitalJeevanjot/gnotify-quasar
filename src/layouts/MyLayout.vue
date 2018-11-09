@@ -69,7 +69,7 @@
     <br>
     <div style="padding: 10px" class="row justify-around" color="black">
       <div class="col-md-5">
-        <q-uploader :url="uploader_url" @add="thumbnailAdded" @remove:cancel="thumbnailRemoved" @remove:done="thumbnailRemoved" @remove:abort="thumbnailRemoved" hide-upload-button :name='thumbnail' float-label="Upload Thumbnail" extensions=".jpeg, .jpg, .png, .gif, .mp4"
+        <q-uploader :url="uploader_url" @add="thumbnailAdded" @remove:cancel="thumbnailRemoved" @remove:done="thumbnailRemoved" @remove:abort="thumbnailRemoved" hide-upload-button :name='thumbnail' float-label="Upload Thumbnail" extensions=".jpeg, .jpg, .png, .gif"
           :error="error_thumbnail" />
         <!-- <q-input type="url" readonly :error="error_thumbnail" v-model="thumbnail" float-label="Add Thumbnail *" clearable />
           <q-btn flat dense icon="file_upload" class="float-right" css="position: absolute;"/> -->
@@ -175,39 +175,30 @@ export default {
       error_profilepic: false,
       profile_pic: '',
       uploader_url: '', // Add server url to handle upload
-      timestamp: null
+      timestamp: null,
+      pp_files: [],
+      thumbnail_files: [],
+      pp_fileURL: null,
+      thumbnail_fileURL: null
     }
   },
   methods: {
     async ppadded (files) {
-      await this.setTimeStamp()
       // console.log(files[0])
+      this.pp_files = files
       this.profile_pic = files[0].name
-      console.log(files[0])
-      const formData = new FormData()
-      formData.append('file', files[0])
-      formData.append('tags', `g, board, notice`)
-      formData.append('upload_preset', 'myldschl') // Replace the preset name with your own
-      formData.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
-      formData.append('timestamp', (this.timestamp / 1000) | 0)
-      // Make an AJAX upload request using Axios (replace Cloudinary URL below with your own)
-      this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formData, {
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-      }).then(response => {
-        const data = response.data
-        const fileURL = data.secure_url // You should store this URL for future references in your app
-        console.log(data)
-        console.log(fileURL)
-      })
     },
     thumbnailAdded (files) {
-      console.log(files[0])
+      // console.log(files[0])
+      this.thumbnail_files = files
       this.thumbnail = files[0].name
     },
     ppRemoved (file) {
       this.profile_pic = ''
+      this.pp_files = []
     },
     thumbnailRemoved (file) {
+      this.thumbnail_files = []
       this.thumbnail = ''
     },
     openStudentBoard () {
@@ -221,7 +212,6 @@ export default {
       })
     },
     sendsms () {
-      console.log(this.thumbnail)
       if (this.$v.text.$invalid) {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true
@@ -257,7 +247,7 @@ export default {
               message: 'Sent!',
               color: 'primary'
             })
-            console.log(confirmationResult)
+            // console.log(confirmationResult)
           }).catch((err) => {
             this.disable = true
             this.hidden = true
@@ -290,7 +280,7 @@ export default {
     closeModal () {
       this.opened = false
     },
-    async publishPost () {
+    async publishPost () { // First checks all validation -> Upload Profile Pic -> Uplaod Thumbnail -> post on firebase
       await this.setTimeStamp() // Updating time here everytime before posting.
       if (this.$v.text.$invalid) {
         this.$q.notify('10 Digit Mobile number is required.')
@@ -322,23 +312,62 @@ export default {
         this.error_verification = false
         this.error_title = false
         this.error_profilepic = false
-        window.confirmationResult.confirm(this.code).then((result) => {
-          this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
-            this.$firebase.database().ref('books/' + this.books.length).set({
-              Body: this.model,
-              Comments: 'later',
-              Image: this.thumbnail,
-              Mobile: this.text,
-              Random_Seed: response.data,
-              Recent_Post: this.books.length - 1,
-              Title: this.title,
-              Upvotes: '0',
-              DatTime: this.timestamp,
-              Profile_Pic: this.Profile_Pic
-            }).then(() => {
-              this.opened = false
+        window.confirmationResult.confirm(this.code).then(() => {
+          let formDatap = new FormData()
+          console.log(this.pp_files[0])
+          formDatap.append('file', this.pp_files[0])
+          formDatap.append('tags', `gndu, board, notice`)
+          formDatap.append('upload_preset', 'myldschl') // Replace the preset name with your own
+          formDatap.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
+          formDatap.append('timestamp', (this.timestamp / 1000) | 0)
+          this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formDatap, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          }).then((responsep) => {
+            let datap = responsep.data
+            this.pp_fileURL = datap.secure_url // You should store this URL for future references in your app
+            // console.log(data)
+            console.log(this.pp_fileURL)
+            // Thumbnail upload...
+            let formData2 = new FormData()
+            formData2.append('file', this.thumbnail_files[0])
+            formData2.append('tags', `gndu, board, notice`)
+            formData2.append('upload_preset', 'myldschl') // Replace the preset name with your own
+            formData2.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
+            formData2.append('timestamp', (this.timestamp / 1000) | 0)
+            this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formData2, {
+              headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then((responset) => {
+              let datat = responset.data
+              this.thumbnail_fileURL = datat.secure_url
+              // console.log(data)
+              console.log(this.thumbnail_fileURL)
+              this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
+                this.$firebase.database().ref('books/' + this.books.length).set({
+                  Body: this.model,
+                  Comments: 'later',
+                  Image: this.thumbnail_fileURL,
+                  Mobile: this.text,
+                  Random_Seed: response.data,
+                  Recent_Post: this.books.length - 1,
+                  Title: this.title,
+                  Upvotes: '0',
+                  DatTime: this.timestamp,
+                  Profile_Pic: this.pp_fileURL,
+                  Updated_On: this.timestamp
+                }).then(() => {
+                  this.$q.notify({
+                    message: 'Post Published!',
+                    color: 'green'
+                  })
+                  this.opened = false
+                }).catch((err) => {
+                  this.$q.notify(err.message)
+                })
+              }).catch((err) => {
+                this.$q.notify(err)
+              })
             }).catch((err) => {
-              this.$q.notify(err.message)
+              this.$q.notify(err)
             })
           }).catch((err) => {
             this.$q.notify(err)
