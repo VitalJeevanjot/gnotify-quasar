@@ -351,9 +351,9 @@ export default {
                   Recent_Post: this.books.length - 1,
                   Title: this.title,
                   Upvotes: '0',
-                  DatTime: this.timestamp,
+                  DateTime: this.timestamp.toString(),
                   Profile_Pic: this.pp_fileURL,
-                  Updated_On: this.timestamp
+                  Updated_On: this.timestamp.toString()
                 }).then(() => {
                   this.$q.notify({
                     message: 'Post Published!',
