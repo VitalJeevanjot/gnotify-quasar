@@ -2,10 +2,12 @@
 <q-layout view="lHh Lpr lFf">
   <q-modal v-model="opened" maximized no-backdrop-dismiss>
     <div class="row justify-center">
-      <p class="text-light" align="center">Press `ESC` to go
+      <p class="text-light" align="center">Press `ESC` to go back or click
         <q-btn flat @click.native="closeModal" label="back" />
       </p>
     </div>
+    <span class="text-light" align="center">Posting in {{this.wheretoPost.replace('/','')}}
+    </span>
     <div class="row">
       <div class="col-12">
         <q-input type="text" :maxlength="90" inverted color="secondary" no-shadow :error="error_title" v-model="title" float-label="Add Title *" clearable />
@@ -179,7 +181,8 @@ export default {
       pp_files: [],
       thumbnail_files: [],
       pp_fileURL: null,
-      thumbnail_fileURL: null
+      thumbnail_fileURL: null,
+      wheretoPost: 'admin/'
     }
   },
   methods: {
@@ -203,6 +206,7 @@ export default {
     },
     openStudentBoard () {
       this.$q.loading.show()
+      this.wheretoPost = 'student/'
       console.log('opening S board')
       this.books = []
       this.$studentref.on('value', (snapshoti) => {
@@ -269,6 +273,7 @@ export default {
       this.$q.loading.show()
       console.log('opening A board')
       this.books = []
+      this.wheretoPost = 'admin/'
       this.$bookref.on('value', (snapshot) => {
         // console.log(snapshot.val())
         this.books = snapshot.val()
@@ -356,7 +361,7 @@ export default {
               // console.log(data)
               console.log(this.thumbnail_fileURL)
               this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
-                this.$firebase.database().ref('books/' + this.books.length).set({
+                this.$firebase.database().ref(this.wheretoPost + this.books.length).set({
                   Body: this.model,
                   Comments: 'later',
                   Image: this.thumbnail_fileURL,
@@ -412,7 +417,7 @@ export default {
     this.setTimeStamp()
     this.$firebase.auth().useDeviceLanguage()
     this.$bookref.on('value', (snapshot) => {
-      console.log(snapshot.val())
+      console.log(snapshot.val().length)
       this.books = snapshot.val()
       this.$q.loading.hide()
     }, function (errorObject) {
