@@ -118,7 +118,7 @@
       </q-tabs>
       <!-- // random string generator for urls https://helloacm.com/api/random/?n=128 -->
       <div class="row justify-center">
-        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='book in books' :key='book.Title'>
+        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='book in books' v-if='book.null === "false"' :key='book.Title'>
           <q-item>
             <q-item-side :avatar="book.Profile_Pic" />
             <q-item-main>
@@ -207,12 +207,13 @@ export default {
     openStudentBoard () {
       this.$q.loading.show()
       this.wheretoPost = 'student/'
-      console.log('opening S board')
+      // console.log('opening S board')
       this.books = []
       this.$studentref.on('value', (snapshoti) => {
         // console.log(snapshoti.val())
         this.$q.loading.hide()
         this.books = snapshoti.val()
+        console.log(this.books)
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
       })
@@ -372,7 +373,8 @@ export default {
                   Upvotes: '0',
                   DateTime: this.timestamp.toString(),
                   Profile_Pic: this.pp_fileURL,
-                  Updated_On: this.timestamp.toString()
+                  Updated_On: this.timestamp.toString(),
+                  null: 'false'
                 }).then(() => {
                   this.$q.notify({
                     message: 'Post Published!',
@@ -417,7 +419,7 @@ export default {
     this.setTimeStamp()
     this.$firebase.auth().useDeviceLanguage()
     this.$bookref.on('value', (snapshot) => {
-      console.log(snapshot.val().length)
+      console.log(snapshot.val())
       this.books = snapshot.val()
       this.$q.loading.hide()
     }, function (errorObject) {
