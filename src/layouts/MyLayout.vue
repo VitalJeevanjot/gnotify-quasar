@@ -118,14 +118,14 @@
       </q-tabs>
       <!-- // random string generator for urls https://helloacm.com/api/random/?n=128 -->
       <div class="row justify-center">
-        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='book in books' v-if='book.null === "false"' :key='book.Title'>
+        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='book in books' v-if='book.null === "false"' :key='book.Random_Seed'>
           <q-item>
             <q-item-side :avatar="book.Profile_Pic" />
             <q-item-main>
-              <a href="#" style="color: #000000; text-decoration: none">
+              <router-link :to="'post/' + book.Random_Seed" style="color: #000000; text-decoration: none">
                 <q-item-tile label>{{book.Title}}</q-item-tile>
                 <q-item-tile sublabel>{{book.DateTime}}</q-item-tile>
-              </a>
+              </router-link>
             </q-item-main>
           </q-item>
           <q-card-media>
@@ -272,7 +272,7 @@ export default {
     },
     openAdminBoard () {
       this.$q.loading.show()
-      console.log('opening A board')
+      // console.log('opening A board')
       this.books = []
       this.wheretoPost = 'admin/'
       this.$bookref.on('value', (snapshot) => {
@@ -415,6 +415,7 @@ export default {
   },
   mounted () {
     // let book = null
+    this.books = []
     this.$q.loading.show()
     this.setTimeStamp()
     this.$firebase.auth().useDeviceLanguage()

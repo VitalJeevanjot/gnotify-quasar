@@ -2,10 +2,11 @@
 const routes = [
   {
     path: '/',
-    component: () => import('layouts/MyLayout.vue'),
-    children: [
-      { path: 'index', component: () => import('pages/Index.vue') }
-    ]
+    component: () => import('layouts/MyLayout.vue')
+  },
+  { // Use random seed to get exact post from both databases.
+    path: '/post/:id',
+    component: () => import('layouts/post.vue')
   }
 
 ]
