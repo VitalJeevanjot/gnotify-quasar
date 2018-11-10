@@ -202,16 +202,19 @@ export default {
       this.thumbnail = ''
     },
     openStudentBoard () {
+      this.$q.loading.show()
       console.log('opening S board')
       this.books = []
       this.$studentref.on('value', (snapshoti) => {
-        console.log(snapshoti.val())
+        // console.log(snapshoti.val())
+        this.$q.loading.hide()
         this.books = snapshoti.val()
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
       })
     },
     sendsms () {
+      this.$q.loading.show()
       if (this.$v.text.$invalid) {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true
@@ -240,6 +243,7 @@ export default {
         try {
           this.$firebase.auth().signInWithPhoneNumber(mobileNo, window.recaptchaVerifier).then((confirmationResult) => {
             window.confirmationResult = confirmationResult
+            this.$q.loading.hide()
             this.disable = false
             this.hidden = false
             this.send = 'Resend'
@@ -249,23 +253,26 @@ export default {
             })
             // console.log(confirmationResult)
           }).catch((err) => {
+            this.$q.loading.hide()
             this.disable = true
             this.hidden = true
             this.send = 'Send'
             this.$q.notify(err.message)
-            console.log(err)
           })
         } catch (err) {
           this.$q.notify(err)
+          this.$q.loading.hide()
         }
       }
     },
     openAdminBoard () {
+      this.$q.loading.show()
       console.log('opening A board')
       this.books = []
       this.$bookref.on('value', (snapshot) => {
-        console.log(snapshot.val())
+        // console.log(snapshot.val())
         this.books = snapshot.val()
+        this.$q.loading.hide()
         // console.log(this.books[1]['Random Seed'])
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
@@ -281,24 +288,29 @@ export default {
       this.opened = false
     },
     async publishPost () { // First checks all validation -> Upload Profile Pic -> Uplaod Thumbnail -> post on firebase
+      this.$q.loading.show()
       await this.setTimeStamp() // Updating time here everytime before posting.
       if (this.$v.text.$invalid) {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true
+        this.$q.loading.hide()
       } else if (this.$v.thumbnail.$invalid) {
         this.$q.notify('A Thumbnail image or video is required')
         this.error_mobile = false
         this.error_thumbnail = true
+        this.$q.loading.hide()
       } else if (this.$v.title.$invalid) {
         this.$q.notify('Enter a valid title with a length of 8 or more but less than 90.')
         this.error_thumbnail = false
         this.error_mobile = false
         this.error_title = true
+        this.$q.loading.hide()
       } else if (this.$v.code.$invalid) {
         this.error_mobile = false
         this.error_thumbnail = false
         this.error_title = false
         this.error_verification = true
+        this.$q.loading.hide()
         this.$q.notify('Please enter correct 6 digit verification code')
       } else if (this.$v.profile_pic.$invalid) {
         this.$q.notify('Enter a valid title with a length of 8 characters or more but less than 90.')
@@ -306,6 +318,7 @@ export default {
         this.error_mobile = false
         this.error_title = false
         this.error_profilepic = true
+        this.$q.loading.hide()
       } else {
         this.error_mobile = false
         this.error_thumbnail = false
@@ -313,6 +326,7 @@ export default {
         this.error_title = false
         this.error_profilepic = false
         window.confirmationResult.confirm(this.code).then(() => {
+          this.opened = false
           let formDatap = new FormData()
           console.log(this.pp_files[0])
           formDatap.append('file', this.pp_files[0])
@@ -359,20 +373,28 @@ export default {
                     message: 'Post Published!',
                     color: 'green'
                   })
+                  this.$q.loading.hide()
                   this.opened = false
                 }).catch((err) => {
                   this.$q.notify(err.message)
+                  this.$q.loading.hide()
                 })
               }).catch((err) => {
                 this.$q.notify(err)
+                this.$q.loading.hide()
               })
             }).catch((err) => {
               this.$q.notify(err)
+              this.$q.loading.hide()
             })
           }).catch((err) => {
             this.$q.notify(err)
+            this.$q.loading.hide()
           })
-        }).catch((err) => this.$q.notify(err))
+        }).catch((err) => {
+          this.$q.notify(err)
+          this.$q.loading.hide()
+        })
       }
     },
     async setTimeStamp () {
@@ -386,11 +408,13 @@ export default {
   },
   mounted () {
     // let book = null
+    this.$q.loading.show()
     this.setTimeStamp()
     this.$firebase.auth().useDeviceLanguage()
     this.$bookref.on('value', (snapshot) => {
       console.log(snapshot.val())
       this.books = snapshot.val()
+      this.$q.loading.hide()
     }, function (errorObject) {
       console.log('The read failed: ' + errorObject.code)
     })
