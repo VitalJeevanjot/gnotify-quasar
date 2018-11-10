@@ -32,6 +32,12 @@
         <div class="row justify-center">
           <q-editor v-model="model" :toolbar="[]" readonly style="width: 100%;"/>
         </div>
+        <div class="row" align="center">
+          <div class="col-12">
+            <q-btn color="white text-black" flat class="q-mr-sm" label="Update"/>
+            <q-btn color="secondary white-text" flat class="q-ml-sm" label="Hide"/>
+          </div>
+        </div>
       </q-page>
     </q-page-container>
 
