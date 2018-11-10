@@ -9,22 +9,26 @@
           round
           dense
           icon="arrow_back"
-          @click="null"
+          @click="$router.push('/')"
         />
                   <!-- On click change the page to home -->
         <q-item>
-          <q-item-side avatar="https://pbs.twimg.com/profile_images/1057899591708753921/PSpUS-Hp_400x400.jpg" style="width: 100% !important; height: 100% !important" />
+          <q-item-side :avatar="this.profile_pic" />
         </q-item>
         <q-toolbar-title>
-          Post Title
-          <span slot="subtitle">Mobile no and date</span>
+          {{this.title}}
+          <span slot="subtitle">{{this.mobile_no}} - {{this.datetime}}</span>
         </q-toolbar-title>
       </q-toolbar>
     </q-layout-header>
 <!-- Post avatar here show big in circle image and then view to post starts -->
     <q-page-container>
-      <!-- This is where pages get injected -->
       <q-page>
+        <div class="row justify-center">
+          <a :href="this.image">
+            <img :src="this.image" class="responsive q-pt-sm" style="object-fit: cover;">
+          </a>
+        </div>
         <div class="row justify-center">
           <q-editor v-model="model" :toolbar="[]" readonly style="width: 100%;"/>
         </div>
@@ -42,9 +46,13 @@ export default {
   // name: 'LayoutName',
   data () {
     return {
-      leftDrawer: true,
       model: '',
-      posts: []
+      title: '',
+      datetime: '',
+      profile_pic: '',
+      mobile_no: '',
+      books: [],
+      image: ''
     }
   },
   mounted () {
@@ -56,6 +64,11 @@ export default {
       for (var i = 0; i < this.books.length; i++) {
         if (this.books[i].Random_Seed === this.$route.params.id) {
           this.model = this.books[i].Body
+          this.mobile_no = this.books[i].Mobile
+          this.title = this.books[i].Title
+          this.datetime = this.books[i].DateTime
+          this.profile_pic = this.books[i].Profile_Pic
+          this.image = this.books[i].Image
           this.$q.loading.hide()
         }
       }
@@ -70,6 +83,11 @@ export default {
       for (var i = 0; i < this.books.length; i++) {
         if (this.books[i].Random_Seed === this.$route.params.id) {
           this.model = this.books[i].Body
+          this.mobile_no = this.books[i].Mobile
+          this.title = this.books[i].Title
+          this.datetime = this.books[i].DateTime
+          this.profile_pic = this.books[i].Profile_Pic
+          this.image = this.books[i].Image
           this.$q.loading.hide()
         }
       }
