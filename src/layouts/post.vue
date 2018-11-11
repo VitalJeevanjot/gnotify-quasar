@@ -2,8 +2,8 @@
   <q-layout> <!-- Be sure to play with the Layout demo on docs -->
 
     <!-- (Optional) The Header -->
-    <q-layout-header>
-      <q-toolbar>
+    <q-layout-header class="no-shadow">
+      <q-toolbar color="white" class="text-black">
         <q-btn
           flat
           round
@@ -26,7 +26,7 @@
       <q-page>
         <div class="row justify-center">
           <a :href="this.image">
-            <img :src="this.image" class="responsive q-pt-sm" style="object-fit: cover;">
+            <img :src="this.image" class="responsive" style="object-fit: cover;">
           </a>
         </div>
         <div class="row justify-center">
@@ -97,7 +97,7 @@ export default {
           this.$q.loading.hide()
         }
       }
-      console.log(this.books)
+      console.log(Math.round((Math.random() * (9000000000) + 1000000000)))
     }, function (errorObject) {
       console.log('The read failed: ' + errorObject.code)
     })

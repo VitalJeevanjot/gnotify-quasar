@@ -87,6 +87,9 @@
     <div class="row justify-center">
       <!-- Instead of input add a button here -->
       <div class="col-7 q-pr-sm">
+        <q-input type="tel" :error="error_auth_code" v-model="auth_text" required prefix="+91" float-label="AUTH Code *" clearable :maxlength="10" :decimals="0" placeholder="Enter AUTH Code" />
+      </div>
+      <div class="col-7 q-pr-sm">
         <q-input type="tel" :error="error_mobile" v-model="text" required prefix="+91" float-label="Mobile number *" clearable :maxlength="10" :decimals="0" placeholder="Enter 10 digit mobile number" />
       </div>
       <div class="col-6 q-pl-sm">
@@ -182,7 +185,9 @@ export default {
       thumbnail_files: [],
       pp_fileURL: null,
       thumbnail_fileURL: null,
-      wheretoPost: 'admin/'
+      wheretoPost: 'admin/',
+      auth_text: '',
+      error_auth_code: false
     }
   },
   methods: {
@@ -223,26 +228,39 @@ export default {
       if (this.$v.text.$invalid) {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true
+        this.$q.loading.hide()
       } else if (this.$v.thumbnail.$invalid) {
         this.$q.notify('A Thumbnail image or video is required')
         this.error_thumbnail = true
         this.error_mobile = false
+        this.$q.loading.hide()
       } else if (this.$v.title.$invalid) {
         this.$q.notify('Enter a valid title with a length of 8 characters or more but less than 90.')
         this.error_thumbnail = false
         this.error_mobile = false
         this.error_title = true
+        this.$q.loading.hide()
       } else if (this.$v.profile_pic.$invalid) {
         this.$q.notify('Enter a valid title with a length of 8 characters or more but less than 90.')
         this.error_thumbnail = false
         this.error_mobile = false
         this.error_title = false
         this.error_profilepic = true
+        this.$q.loading.hide()
+      } else if (this.$v.auth_text.$invalid) {
+        this.$q.notify('Enter a valid AUTH code')
+        this.error_thumbnail = false
+        this.error_mobile = false
+        this.error_title = false
+        this.error_profilepic = false
+        this.error_auth_code = true
+        this.$q.loading.hide()
       } else {
         this.error_mobile = false
         this.error_thumbnail = false
         this.error_title = false
         this.error_profilepic = false
+        this.error_auth_code = false
         let mobileNo = '+91' + this.text
         console.log(mobileNo)
         try {
@@ -325,12 +343,20 @@ export default {
         this.error_title = false
         this.error_profilepic = true
         this.$q.loading.hide()
+      } else if (this.$v.auth_text.$invalid) {
+        this.$q.notify('Enter a valid AUTH code')
+        this.error_thumbnail = false
+        this.error_mobile = false
+        this.error_title = false
+        this.error_profilepic = false
+        this.error_auth_code = true
       } else {
         this.error_mobile = false
         this.error_thumbnail = false
         this.error_verification = false
         this.error_title = false
         this.error_profilepic = false
+        this.error_auth_code = false
         window.confirmationResult.confirm(this.code).then(() => {
           this.opened = false
           let formDatap = new FormData()
@@ -420,7 +446,7 @@ export default {
     this.setTimeStamp()
     this.$firebase.auth().useDeviceLanguage()
     this.$bookref.on('value', (snapshot) => {
-      console.log(snapshot.val())
+      // console.log(snapshot.val())
       this.books = snapshot.val()
       this.$q.loading.hide()
     }, function (errorObject) {
@@ -451,6 +477,11 @@ export default {
     },
     profile_pic: {
       required
+    },
+    auth_text: {
+      required,
+      minLength: minLength(9),
+      maxlength: maxLength(10)
     }
   }
 }
