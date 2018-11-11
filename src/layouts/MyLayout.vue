@@ -121,11 +121,11 @@
       </q-tabs>
       <!-- // random string generator for urls https://helloacm.com/api/random/?n=128 -->
       <div class="row justify-center">
-        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='book in books' v-if='book.null === "false"' :key='book.Random_Seed'>
+        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='(book, i) in books' v-if='book.null === "false"' :key='book.Random_Seed'>
           <q-item>
             <q-item-side :avatar="book.Profile_Pic" />
             <q-item-main>
-              <router-link :to="'post/' + book.Random_Seed" style="color: #000000; text-decoration: none">
+              <router-link :to="'post/' + wheretoPost + book.Random_Seed + '/' + i" style="color: #000000; text-decoration: none">
                 <q-item-tile label>{{book.Title}}</q-item-tile>
                 <q-item-tile sublabel>{{book.DateTime}}</q-item-tile>
               </router-link>
@@ -138,9 +138,9 @@
             </div>
           </q-card-media>
           <q-card-main>
-            <a href="#" style="color: #000000; text-decoration: none;">
+            <!-- <a href="#" style="color: #000000; text-decoration: none;"> Upcoming feature for sorting posts based on mobile numbers-->
               <p class="text-faded">{{book.Mobile}}</p>
-            </a>
+            <!-- </a> -->
           </q-card-main>
         </q-card>
       </div>
@@ -196,7 +196,7 @@ export default {
     }
   },
   methods: {
-    async ppadded (files) {
+    ppadded (files) {
       // console.log(files[0])
       this.pp_files = files
       this.profile_pic = files[0].name
@@ -223,7 +223,7 @@ export default {
         // console.log(snapshoti.val())
         this.$q.loading.hide()
         this.books = snapshoti.val()
-        console.log(this.books)
+        // console.log(this.books)
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
       })

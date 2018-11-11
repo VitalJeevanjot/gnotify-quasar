@@ -5,7 +5,7 @@ const routes = [
     component: () => import('layouts/MyLayout.vue')
   },
   { // Use random seed to get exact post from both databases.
-    path: '/post/:id',
+    path: '/post/:location/:id/:pn',
     component: () => import('layouts/post.vue')
   }
 
