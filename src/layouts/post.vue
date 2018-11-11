@@ -175,7 +175,7 @@ export default {
       error_thumbnail: false,
       error_title: false,
       error_profilepic: false,
-      disable: false,
+      disable: true,
       code: '',
       text: '',
       send: 'Send SMS',
