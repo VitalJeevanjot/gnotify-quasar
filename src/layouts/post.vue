@@ -350,7 +350,7 @@ export default {
                   code_used: this.code_used
                 }).then(() => {
                   this.$q.notify({
-                    message: 'Post Published!',
+                    message: 'Update Published!',
                     color: 'green'
                   })
                   this.$q.loading.hide()
