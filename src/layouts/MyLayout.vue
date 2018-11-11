@@ -87,7 +87,7 @@
     <div class="row justify-center">
       <!-- Instead of input add a button here -->
       <div class="col-7 q-pr-sm">
-        <q-input type="tel" :error="error_auth_code" v-model="auth_text" required prefix="+91" float-label="AUTH Code *" clearable :maxlength="10" :decimals="0" placeholder="Enter AUTH Code" />
+        <q-input type="tel" :readonly="readonly_code" :error="error_auth_code" v-model="auth_text" required float-label="AUTH Code *" clearable :maxlength="10" :decimals="0" placeholder="Enter AUTH Code" />
       </div>
       <div class="col-7 q-pr-sm">
         <q-input type="tel" :error="error_mobile" v-model="text" required prefix="+91" float-label="Mobile number *" clearable :maxlength="10" :decimals="0" placeholder="Enter 10 digit mobile number" />
@@ -187,7 +187,12 @@ export default {
       thumbnail_fileURL: null,
       wheretoPost: 'admin/',
       auth_text: '',
-      error_auth_code: false
+      error_auth_code: false,
+      admin_keys: [],
+      student_keys: [],
+      canPostInAdmin: false,
+      canPostInStudent: false,
+      readonly_code: false
     }
   },
   methods: {
@@ -262,29 +267,60 @@ export default {
         this.error_profilepic = false
         this.error_auth_code = false
         let mobileNo = '+91' + this.text
-        console.log(mobileNo)
-        try {
-          this.$firebase.auth().signInWithPhoneNumber(mobileNo, window.recaptchaVerifier).then((confirmationResult) => {
-            window.confirmationResult = confirmationResult
+        // console.log(mobileNo)
+        if (this.wheretoPost === 'student/') {
+          this.canPostInStudent = false
+          this.canPostInAdmin = false // These lines here and in below block ensure that after posting on student the user cannot post in admin.
+          for (var i = 0; i < this.student_keys.length; i++) {
+            if (this.student_keys[i].Key.toString() === this.auth_text && this.student_keys[i].Can_Use === 'true') {
+              this.canPostInStudent = true
+              this.canPostInAdmin = false
+              this.readonly_code = true
+            }
+          }
+          if (this.canPostInStudent === false) {
+            this.$q.notify('Your code is not correct or your code is disabled.')
             this.$q.loading.hide()
-            this.disable = false
-            this.hidden = false
-            this.send = 'Resend'
-            this.$q.notify({
-              message: 'Sent!',
-              color: 'primary'
+          }
+        } else if (this.wheretoPost === 'admin/') {
+          this.canPostInStudent = false
+          this.canPostInAdmin = false
+          for (var ia = 0; ia < this.admin_keys.length; ia++) {
+            if (this.admin_keys[ia].Key.toString() === this.auth_text && this.admin_keys[ia].Can_Use === 'true') {
+              this.canPostInStudent = false
+              this.canPostInAdmin = true
+              this.readonly_code = true
+            }
+          }
+          if (this.canPostInAdmin === false) {
+            this.$q.notify('Your code is not correct or your code is disabled.')
+            this.$q.loading.hide()
+          }
+        }
+        if (this.canPostInAdmin === true || this.canPostInStudent === true) {
+          try {
+            this.$firebase.auth().signInWithPhoneNumber(mobileNo, window.recaptchaVerifier).then((confirmationResult) => {
+              window.confirmationResult = confirmationResult
+              this.$q.loading.hide()
+              this.disable = false
+              this.hidden = false
+              this.send = 'Resend'
+              this.$q.notify({
+                message: 'Sent!',
+                color: 'primary'
+              })
+              // console.log(confirmationResult)
+            }).catch((err) => {
+              this.$q.loading.hide()
+              this.disable = true
+              this.hidden = true
+              this.send = 'Send'
+              this.$q.notify(err.message)
             })
-            // console.log(confirmationResult)
-          }).catch((err) => {
+          } catch (err) {
+            this.$q.notify(err)
             this.$q.loading.hide()
-            this.disable = true
-            this.hidden = true
-            this.send = 'Send'
-            this.$q.notify(err.message)
-          })
-        } catch (err) {
-          this.$q.notify(err)
-          this.$q.loading.hide()
+          }
         }
       }
     },
@@ -367,7 +403,9 @@ export default {
           formDatap.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
           formDatap.append('timestamp', (this.timestamp / 1000) | 0)
           this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formDatap, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
           }).then((responsep) => {
             let datap = responsep.data
             this.pp_fileURL = datap.secure_url // You should store this URL for future references in your app
@@ -381,7 +419,9 @@ export default {
             formData2.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
             formData2.append('timestamp', (this.timestamp / 1000) | 0)
             this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formData2, {
-              headers: { 'X-Requested-With': 'XMLHttpRequest' }
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+              }
             }).then((responset) => {
               let datat = responset.data
               this.thumbnail_fileURL = datat.secure_url
@@ -400,14 +440,17 @@ export default {
                   DateTime: this.timestamp.toString(),
                   Profile_Pic: this.pp_fileURL,
                   Updated_On: this.timestamp.toString(),
-                  null: 'false'
+                  null: 'false',
+                  code_used: this.auth_text
                 }).then(() => {
                   this.$q.notify({
                     message: 'Post Published!',
                     color: 'green'
                   })
                   this.$q.loading.hide()
+                  this.readonly_code = false
                   this.opened = false
+                  this.hidden = true
                 }).catch((err) => {
                   this.$q.notify(err.message)
                   this.$q.loading.hide()
@@ -448,6 +491,20 @@ export default {
     this.$bookref.on('value', (snapshot) => {
       // console.log(snapshot.val())
       this.books = snapshot.val()
+      this.$q.loading.hide()
+    }, function (errorObject) {
+      console.log('The read failed: ' + errorObject.code)
+    })
+    this.$adminKeys.on('value', (snapshot) => {
+      // console.log(snapshot.val())
+      this.admin_keys = snapshot.val()
+      this.$q.loading.hide()
+    }, function (errorObject) {
+      console.log('The read failed: ' + errorObject.code)
+    })
+    this.$studentKeys.on('value', (snapshot) => {
+      // console.log(snapshot.val())
+      this.student_keys = snapshot.val()
       this.$q.loading.hide()
     }, function (errorObject) {
       console.log('The read failed: ' + errorObject.code)
