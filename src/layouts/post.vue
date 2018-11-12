@@ -26,7 +26,7 @@
       <q-page>
         <div class="row justify-center">
           <a :href="this.image">
-            <img :src="this.image" class="responsive" style="object-fit: cover; height: 20vw">
+            <img :src="this.image" class="responsive" style="object-fit: cover; height: 35vw">
           </a>
         </div>
         <div class="row">
@@ -100,6 +100,7 @@
               </div>
             </div>
             <br>
+            <hr/>
             <div style="padding: 10px" class="row justify-around" color="black">
               <div class="col-md-5">
                 <q-uploader :url='uploader_url' :disable="disable_uploader" @add="thumbnailAdded" @remove:cancel="thumbnailRemoved" @remove:done="thumbnailRemoved" @remove:abort="thumbnailRemoved" hide-upload-button :name='thumbnail' float-label="Upload Thumbnail" extensions=".jpeg, .jpg, .png, .gif"
@@ -134,9 +135,14 @@
           </q-modal>
         </div>
         <div class="row justify-center">
-          <q-editor v-model="model" :toolbar="[]" class="q-mt-xl" readonly style="width: 100%;"/>
+          <q-editor v-model="model" :toolbar="[]" class="q-mt-sm" content-class="" readonly style="width: 100%;"/>
         </div>
-        <div class="row q-mt-xl" align="center">
+        <div class="row justify-center q-mt-lg">
+          <div class="col-5">
+            <hr/>
+          </div>
+        </div>
+        <div class="row q-mt-auto" align="center">
           <div class="col-12">
             <q-btn color="white text-black" @click.native="openUpdatePostModal" class="q-ma-sm" label="Update"/>
           </div>
@@ -242,7 +248,7 @@ export default {
       // console.log(snapshoti.val())
       this.books = []
       this.books = snapshoti.val()
-      console.log(this.books)
+      // console.log(this.books)
       for (var i = 0; i < this.books.length; i++) {
         if (this.books[i].Random_Seed === this.$route.params.id) {
           this.model = this.books[i].Body

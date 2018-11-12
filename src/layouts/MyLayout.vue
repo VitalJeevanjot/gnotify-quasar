@@ -70,6 +70,7 @@
       </div>
     </div>
     <br>
+    <hr/>
     <div style="padding: 10px" class="row justify-around" color="black">
       <div class="col-md-5">
         <q-uploader :url="uploader_url" @add="thumbnailAdded" @remove:cancel="thumbnailRemoved" @remove:done="thumbnailRemoved" @remove:abort="thumbnailRemoved" hide-upload-button :name='thumbnail' float-label="Upload Thumbnail" extensions=".jpeg, .jpg, .png, .gif"
