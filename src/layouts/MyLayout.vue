@@ -10,7 +10,7 @@
     </span>
     <div class="row">
       <div class="col-12">
-        <q-input type="text" :maxlength="90" inverted color="secondary" no-shadow :error="error_title" v-model="title" float-label="Add Title *" clearable />
+        <q-input type="text" :maxlength="90" inverted color="blue" no-shadow :error="error_title" v-model="title" float-label="Add Title *" clearable />
       </div>
       <br>
       <div class="col-12">
