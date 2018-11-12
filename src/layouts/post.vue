@@ -192,11 +192,30 @@ export default {
       disable_editor: false,
       disable_uploader: false,
       recent_post: '',
-      post_id: 0
+      post_id: 0,
+      uid: null
     }
   },
   mounted () {
     this.$q.loading.show()
+    this.$firebase.auth().signInAnonymously().catch((error) => {
+      // Handle Errors here.
+      this.$q.notify(error.message)
+      // ...
+    })
+    this.$firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in.
+        // var isAnonymous = user.isAnonymous
+        this.uid = user.uid
+        // console.log(this.uid)
+      // ...
+      } else {
+      // User is signed out.
+      // ...
+      }
+      // ...
+    })
     this.wheretoPost = this.$route.params.location
     this.post_number = this.$route.params.pn
     this.$bookref.once('value', (snapshot) => {

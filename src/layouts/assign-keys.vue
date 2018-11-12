@@ -50,7 +50,8 @@ export default {
       hide: true,
       mobile_no: '',
       new_key: null,
-      made_key: null
+      made_key: null,
+      uid: null
     }
   },
   methods: {
@@ -110,6 +111,24 @@ export default {
     }
   },
   mounted () {
+    this.$firebase.auth().signInAnonymously().catch((error) => {
+      // Handle Errors here.
+      this.$q.notify(error.message)
+      // ...
+    })
+    this.$firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in.
+        // var isAnonymous = user.isAnonymous
+        this.uid = user.uid
+        // console.log(this.uid)
+      // ...
+      } else {
+      // User is signed out.
+      // ...
+      }
+      // ...
+    })
     this.$specialKeys.once('value', (snapshot) => {
       this.keys = snapshot.val()
     }, function (errorObject) {

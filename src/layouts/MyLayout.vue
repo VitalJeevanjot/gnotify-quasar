@@ -160,6 +160,7 @@ export default {
   name: 'MyLayout',
   data () {
     return {
+      uid: null,
       leftDrawerOpen: this.$q.platform.is.desktop,
       books: [],
       opened: false,
@@ -488,6 +489,24 @@ export default {
   },
   mounted () {
     // let book = null
+    this.$firebase.auth().signInAnonymously().catch((error) => {
+      // Handle Errors here.
+      this.$q.notify(error.message)
+      // ...
+    })
+    this.$firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in.
+        // var isAnonymous = user.isAnonymous
+        this.uid = user.uid
+        // console.log(this.uid)
+      // ...
+      } else {
+      // User is signed out.
+      // ...
+      }
+      // ...
+    })
     this.books = []
     this.$q.loading.show()
     this.setTimeStamp()
@@ -499,14 +518,14 @@ export default {
     }, function (errorObject) {
       console.log('The read failed: ' + errorObject.code)
     })
-    this.$adminKeys.on('value', (snapshot) => {
+    this.$adminKeys.once('value', (snapshot) => {
       // console.log(snapshot.val())
       this.admin_keys = snapshot.val()
       this.$q.loading.hide()
     }, function (errorObject) {
       console.log('The read failed: ' + errorObject.code)
     })
-    this.$studentKeys.on('value', (snapshot) => {
+    this.$studentKeys.once('value', (snapshot) => {
       // console.log(snapshot.val())
       this.student_keys = snapshot.val()
       this.$q.loading.hide()
