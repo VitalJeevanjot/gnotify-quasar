@@ -18,4 +18,5 @@ export default ({ app, router, Vue }) => {
   Vue.prototype.$studentref = db.ref('student')
   Vue.prototype.$adminKeys = db.ref('admin_keys')
   Vue.prototype.$studentKeys = db.ref('student_keys')
+  Vue.prototype.$specialKeys = db.ref('Special_Key')
 }
