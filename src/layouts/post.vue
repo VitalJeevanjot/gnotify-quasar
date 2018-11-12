@@ -277,7 +277,7 @@ export default {
       this.thumbnail = ''
     },
     async publishUpdate () { // First checks all validation -> Upload Profile Pic -> Uplaod Thumbnail -> post on firebase
-      this.$q.loading.show()
+      this.$q.loading.show({message: 'Please Wait...'})
       await this.setTimeStamp() // Updating time here everytime before posting.
       if (this.$v.text.$invalid && this.disable_editor === false) {
         this.$q.notify('10 Digit Mobile number is required.')
@@ -429,7 +429,7 @@ export default {
       }
     },
     sendsms () {
-      this.$q.loading.show()
+      this.$q.loading.show({message: 'Please Wait...'})
       if (this.$v.text.$invalid && this.disable_editor === false) {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true

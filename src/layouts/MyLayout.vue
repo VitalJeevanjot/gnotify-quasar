@@ -115,7 +115,7 @@
   </q-layout-header>
   <q-page-container>
     <q-page>
-      <q-tabs swipeable color="black" align="justify" v-model="selectedTab">
+      <q-tabs underline-color="secondary" swipeable color="black" align="justify" v-model="selectedTab">
         <q-tab label="Admin Board" slot="title" name="tab-1" icon="dashboard" @select="openAdminBoard" />
         <q-tab label="Student board" slot="title" name="tab-2" icon="developer_board" @select="openStudentBoard" />
       </q-tabs>
@@ -231,7 +231,7 @@ export default {
       })
     },
     sendsms () {
-      this.$q.loading.show()
+      this.$q.loading.show({message: 'Please Wait...'})
       if (this.$v.text.$invalid) {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true
@@ -350,7 +350,7 @@ export default {
       this.opened = false
     },
     async publishPost () { // First checks all validation -> Upload Profile Pic -> Uplaod Thumbnail -> post on firebase
-      this.$q.loading.show()
+      this.$q.loading.show({message: 'Please Wait...'})
       await this.setTimeStamp() // Updating time here everytime before posting.
       if (this.$v.text.$invalid) {
         this.$q.notify('10 Digit Mobile number is required.')
@@ -447,7 +447,7 @@ export default {
                   post_id: this.books.length // for routing purposes
                 }).then(() => {
                   this.$q.notify({
-                    message: 'Post Published!',
+                    message: 'Post Published! Refresh your page.',
                     color: 'green'
                   })
                   this.$q.loading.hide()
