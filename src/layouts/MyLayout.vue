@@ -121,7 +121,7 @@
       </q-tabs>
       <!-- // random string generator for urls https://helloacm.com/api/random/?n=128 -->
       <div class="row justify-center">
-        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='(book, i) in books' v-if='book.null === "false"' :key='book.Random_Seed'>
+        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='(book, i) in books.slice().reverse()' v-if='book.null === "false"' :key='book.Random_Seed'>
           <q-item>
             <q-item-side :avatar="book.Profile_Pic" />
             <q-item-main>
@@ -216,6 +216,7 @@ export default {
     },
     openStudentBoard () {
       this.$q.loading.show()
+      // this.$router.push('/student')
       this.wheretoPost = 'student/'
       // console.log('opening S board')
       this.books = []
