@@ -8,6 +8,7 @@
     </div>
     <span class="text-light" align="center">Posting in {{this.wheretoPost.replace('/','')}}
     </span>
+    <!-- title field  -->
     <div class="row">
       <div class="col-12">
         <q-input type="text" :maxlength="90" inverted color="blue" no-shadow :error="error_title" v-model="title" float-label="Add Title *" clearable />
