@@ -191,7 +191,8 @@ export default {
       make_it_null: false,
       disable_editor: false,
       disable_uploader: false,
-      recent_post: ''
+      recent_post: '',
+      post_id: 0
     }
   },
   mounted () {
@@ -211,6 +212,7 @@ export default {
           this.image = this.books[i].Image
           this.code_used = this.books[i].code_used
           this.recent_post = this.books[i].Recent_Post
+          this.post_id = this.books[i].post_id
           this.$q.loading.hide()
         }
       }
@@ -393,7 +395,8 @@ export default {
                   Profile_Pic: this.pp_fileURL,
                   Updated_On: this.timestamp.toString(),
                   null: this.disable_editor.toString(), // If editor is enabled then keep the null to false
-                  code_used: this.code_used
+                  code_used: this.code_used,
+                  post_id: this.post_id
                 }).then(() => {
                   this.$q.notify({
                     message: 'Update Published!',

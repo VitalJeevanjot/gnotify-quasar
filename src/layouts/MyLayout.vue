@@ -121,11 +121,11 @@
       </q-tabs>
       <!-- // random string generator for urls https://helloacm.com/api/random/?n=128 -->
       <div class="row justify-center">
-        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='(book, i) in books.slice().reverse()' v-if='book.null === "false"' :key='book.Random_Seed'>
+        <q-card class="q-ma-sm" inline style="width: 400px; height:auto;" v-for='book in books.slice().reverse()' v-if='book.null === "false"' :key='book.Random_Seed'>
           <q-item>
             <q-item-side :avatar="book.Profile_Pic" />
             <q-item-main>
-              <router-link :to="'post/' + wheretoPost + book.Random_Seed + '/' + i" style="color: #000000; text-decoration: none">
+              <router-link :to="'post/' + wheretoPost + book.Random_Seed + '/' + book.post_id" style="color: #000000; text-decoration: none">
                 <q-item-tile label>{{book.Title}}</q-item-tile>
                 <q-item-tile sublabel>{{book.DateTime}}</q-item-tile>
               </router-link>
@@ -443,7 +443,8 @@ export default {
                   Profile_Pic: this.pp_fileURL,
                   Updated_On: this.timestamp.toString(),
                   null: 'false',
-                  code_used: this.auth_text
+                  code_used: this.auth_text,
+                  post_id: this.books.length // for routing purposes
                 }).then(() => {
                   this.$q.notify({
                     message: 'Post Published!',
