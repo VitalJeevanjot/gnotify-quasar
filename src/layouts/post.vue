@@ -192,7 +192,7 @@ export default {
     this.$q.loading.show()
     this.wheretoPost = this.$route.params.location
     this.post_number = this.$route.params.pn
-    this.$bookref.on('value', (snapshot) => {
+    this.$bookref.once('value', (snapshot) => {
       this.books = []
       this.books = snapshot.val()
       for (var i = 0; i < this.books.length; i++) {
@@ -210,7 +210,7 @@ export default {
     }, function (errorObject) {
       console.log('The read failed: ' + errorObject.code)
     })
-    this.$studentref.on('value', (snapshoti) => {
+    this.$studentref.once('value', (snapshoti) => {
       // console.log(snapshoti.val())
       this.books = []
       this.books = snapshoti.val()

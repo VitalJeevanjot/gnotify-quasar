@@ -219,7 +219,7 @@ export default {
       this.wheretoPost = 'student/'
       // console.log('opening S board')
       this.books = []
-      this.$studentref.on('value', (snapshoti) => {
+      this.$studentref.once('value', (snapshoti) => {
         // console.log(snapshoti.val())
         this.$q.loading.hide()
         this.books = snapshoti.val()
@@ -329,7 +329,7 @@ export default {
       // console.log('opening A board')
       this.books = []
       this.wheretoPost = 'admin/'
-      this.$bookref.on('value', (snapshot) => {
+      this.$bookref.once('value', (snapshot) => {
         // console.log(snapshot.val())
         this.books = snapshot.val()
         this.$q.loading.hide()
@@ -488,7 +488,7 @@ export default {
     this.$q.loading.show()
     this.setTimeStamp()
     this.$firebase.auth().useDeviceLanguage()
-    this.$bookref.on('value', (snapshot) => {
+    this.$bookref.once('value', (snapshot) => {
       // console.log(snapshot.val())
       this.books = snapshot.val()
       this.$q.loading.hide()
