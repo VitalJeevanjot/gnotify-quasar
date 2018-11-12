@@ -223,6 +223,7 @@ export default {
         // console.log(snapshoti.val())
         this.$q.loading.hide()
         this.books = snapshoti.val()
+        console.log(this.books)
         // console.log(this.books)
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)

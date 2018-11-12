@@ -36,13 +36,16 @@
                 <q-btn flat @click.native="closeModal" label="back" />
               </p>
             </div>
+            <div class="row justify-center">
+              <q-toggle v-model="make_it_null" @input="makeItNull" label="Hide Post"/>
+            </div>
             <div class="row">
               <div class="col-12">
-                <q-input type="text" :maxlength="90" inverted color="secondary" no-shadow :error="error_title" v-model="title" float-label="Add New Title *" clearable />
+                <q-input type="text" :maxlength="90" :disable="disable_editor" inverted color="secondary" no-shadow :error="error_title" v-model="title" float-label="Add New Title *" clearable />
               </div>
               <br>
               <div class="col-12">
-                <q-editor v-model="model" :disable="false" :toolbar="[
+                <q-editor v-model="model" :disable="disable_editor" :toolbar="[
              ['bold', 'italic', 'strike', 'underline', 'subscript', 'superscript'],
              ['token', 'hr', 'link', 'custom_btn'],
              ['print', 'fullscreen'],
@@ -99,14 +102,14 @@
             <br>
             <div style="padding: 10px" class="row justify-around" color="black">
               <div class="col-md-5">
-                <q-uploader :url='uploader_url' @add="thumbnailAdded" @remove:cancel="thumbnailRemoved" @remove:done="thumbnailRemoved" @remove:abort="thumbnailRemoved" hide-upload-button :name='thumbnail' float-label="Upload Thumbnail" extensions=".jpeg, .jpg, .png, .gif"
+                <q-uploader :url='uploader_url' :disable="disable_uploader" @add="thumbnailAdded" @remove:cancel="thumbnailRemoved" @remove:done="thumbnailRemoved" @remove:abort="thumbnailRemoved" hide-upload-button :name='thumbnail' float-label="Upload Thumbnail" extensions=".jpeg, .jpg, .png, .gif"
                   :error="error_thumbnail" />
                 <!-- <q-input type="url" readonly :error="error_thumbnail" v-model="thumbnail" float-label="Add Thumbnail *" clearable />
                   <q-btn flat dense icon="file_upload" class="float-right" css="position: absolute;"/> -->
               </div>
 
               <div class="col-md-5">
-                <q-uploader :url='uploader_url' @add="ppadded" @remove:cancel="ppRemoved" @remove:done="ppRemoved" @remove:abort="ppRemoved" hide-upload-button :name="profile_pic" float-label="Upload Profile Picture" extensions=".jpeg, .jpg, .png, .gif"
+                <q-uploader :url='uploader_url' :disable="disable_uploader" @add="ppadded" @remove:cancel="ppRemoved" @remove:done="ppRemoved" @remove:abort="ppRemoved" hide-upload-button :name="profile_pic" float-label="Upload Profile Picture" extensions=".jpeg, .jpg, .png, .gif"
                   :error="error_profilepic" />
                 <!-- <q-input type="url" readonly :error="error_profilepic" v-model="profile_pic" float-label="Add Profile Pic *" clearable />
                   <q-btn flat dense icon="file_upload" class="float-right"/> -->
@@ -135,8 +138,7 @@
         </div>
         <div class="row q-mt-xl" align="center">
           <div class="col-12">
-            <q-btn color="white text-black" @click.native="openUpdatePostModal" class="q-mr-sm" label="Update"/>
-            <q-btn color="secondary white-text" class="q-ml-sm" label="Hide"/>
+            <q-btn color="white text-black" @click.native="openUpdatePostModal" class="q-ma-sm" label="Update"/>
           </div>
         </div>
       </q-page>
@@ -164,7 +166,7 @@ export default {
       mobile_no: '',
       books: [],
       image: '',
-      opened: false,
+      opened: false, // Refers to opening or closing Modal with full editor
       thumbail_files: [],
       pp_files: [],
       profile_pic: '',
@@ -179,13 +181,17 @@ export default {
       code: '',
       text: '',
       send: 'Send SMS',
-      hidden: true,
+      hidden: true, // publish_update Btn (Confirm Button in Mylayout)
       wheretoPost: '',
       post_number: null,
       timestamp: null,
       thumbnail_fileURL: '',
       pp_fileURL: '',
-      code_used: null
+      code_used: null,
+      make_it_null: false,
+      disable_editor: false,
+      disable_uploader: false,
+      recent_post: ''
     }
   },
   mounted () {
@@ -204,6 +210,7 @@ export default {
           this.profile_pic = this.books[i].Profile_Pic
           this.image = this.books[i].Image
           this.code_used = this.books[i].code_used
+          this.recent_post = this.books[i].Recent_Post
           this.$q.loading.hide()
         }
       }
@@ -224,6 +231,7 @@ export default {
           this.profile_pic = this.books[i].Profile_Pic
           this.image = this.books[i].Image
           this.code_used = this.books[i].code_used
+          this.recent_post = this.books[i].Recent_Post
           this.$q.loading.hide()
         }
       }
@@ -233,6 +241,15 @@ export default {
     })
   },
   methods: {
+    makeItNull (val) {
+      if (val === true) {
+        this.disable_editor = true
+        this.disable_uploader = true
+      } else {
+        this.disable_editor = false
+        this.disable_uploader = false
+      }
+    },
     openUpdatePostModal () {
       this.opened = true
     },
@@ -260,16 +277,16 @@ export default {
     async publishUpdate () { // First checks all validation -> Upload Profile Pic -> Uplaod Thumbnail -> post on firebase
       this.$q.loading.show()
       await this.setTimeStamp() // Updating time here everytime before posting.
-      if (this.$v.text.$invalid) {
+      if (this.$v.text.$invalid && this.disable_editor === false) {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true
         this.$q.loading.hide()
-      } else if (this.$v.thumbnail.$invalid) {
+      } else if (this.$v.thumbnail.$invalid && this.disable_editor === false) {
         this.$q.notify('A Thumbnail image or video is required')
         this.error_mobile = false
         this.error_thumbnail = true
         this.$q.loading.hide()
-      } else if (this.$v.title.$invalid) {
+      } else if (this.$v.title.$invalid && this.disable_editor === false) {
         this.$q.notify('Enter a valid title with a length of 8 or more but less than 90.')
         this.error_thumbnail = false
         this.error_mobile = false
@@ -282,7 +299,7 @@ export default {
         this.error_verification = true
         this.$q.loading.hide()
         this.$q.notify('Please enter correct 6 digit verification code')
-      } else if (this.$v.profile_pic.$invalid) {
+      } else if (this.$v.profile_pic.$invalid && this.disable_editor === false) {
         this.$q.notify('Enter a valid title with a length of 8 characters or more but less than 90.')
         this.error_thumbnail = false
         this.error_mobile = false
@@ -293,6 +310,35 @@ export default {
         this.$q.notify('Please enter the mobile number that you used to create post')
         this.error_mobile = true
         this.$q.loading.hide()
+      } else if (this.disable_editor === true) {
+        this.error_mobile = false
+        this.error_thumbnail = false
+        this.error_verification = false
+        this.error_title = false
+        this.error_profilepic = false
+        window.confirmationResult.confirm(this.code).then(() => {
+          this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
+            this.$firebase.database().ref(this.wheretoPost + '/' + this.post_number + '/null').set('true').then(() => {
+              this.$q.notify({
+                message: 'Update Published!',
+                color: 'green'
+              })
+              this.$q.loading.hide()
+              this.opened = false
+              this.$router.push('/')
+              this.hidden = true
+            }).catch((err) => {
+              this.$q.notify(err)
+              this.$q.loading.hide()
+            })
+          }).catch((err) => {
+            this.$q.notify(err)
+            this.$q.loading.hide()
+          })
+        }).catch((err) => {
+          this.$q.notify(err)
+          this.$q.loading.hide()
+        })
       } else {
         this.error_mobile = false
         this.error_thumbnail = false
@@ -340,13 +386,13 @@ export default {
                   Image: this.thumbnail_fileURL,
                   Mobile: this.text,
                   Random_Seed: response.data,
-                  Recent_Post: this.books.length - 1,
+                  Recent_Post: this.recent_post,
                   Title: this.title,
                   Upvotes: '0',
                   DateTime: this.datetime,
                   Profile_Pic: this.pp_fileURL,
                   Updated_On: this.timestamp.toString(),
-                  null: 'false',
+                  null: this.disable_editor.toString(), // If editor is enabled then keep the null to false
                   code_used: this.code_used
                 }).then(() => {
                   this.$q.notify({
@@ -354,7 +400,6 @@ export default {
                     color: 'green'
                   })
                   this.$q.loading.hide()
-                  this.readonly_code = false
                   this.opened = false
                   this.$router.push('/')
                   this.hidden = true
@@ -382,22 +427,22 @@ export default {
     },
     sendsms () {
       this.$q.loading.show()
-      if (this.$v.text.$invalid) {
+      if (this.$v.text.$invalid && this.disable_editor === false) {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true
         this.$q.loading.hide()
-      } else if (this.$v.thumbnail.$invalid) {
+      } else if (this.$v.thumbnail.$invalid && this.disable_editor === false) {
         this.$q.notify('A Thumbnail image or video is required')
         this.error_thumbnail = true
         this.error_mobile = false
         this.$q.loading.hide()
-      } else if (this.$v.title.$invalid) {
+      } else if (this.$v.title.$invalid && this.disable_editor === false) {
         this.$q.notify('Enter a valid title with a length of 8 characters or more but less than 90.')
         this.error_thumbnail = false
         this.error_mobile = false
         this.error_title = true
         this.$q.loading.hide()
-      } else if (this.$v.profile_pic.$invalid) {
+      } else if (this.$v.profile_pic.$invalid && this.disable_editor === false) {
         this.$q.notify('Enter a valid title with a length of 8 characters or more but less than 90.')
         this.error_thumbnail = false
         this.error_mobile = false
