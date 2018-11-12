@@ -108,8 +108,8 @@
   <q-layout-header>
     <q-toolbar color="primary" :inverted="$q.theme === 'ios'">
       <q-toolbar-title align="center">
-        G
-        <div slot="subtitle">G</div>
+        Guru Nanak Dev University
+        <div slot="subtitle">online notice board by Jeevanjot singh</div>
       </q-toolbar-title>
       <q-btn icon="create" round flat id="postbtn" @click.native="openModal" />
     </q-toolbar>
