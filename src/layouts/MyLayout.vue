@@ -103,7 +103,7 @@
     </div>
     <div class="row q-pa-sm justify-center">
       <q-btn :label="send" id="sendSms" @click.native="sendsms" />
-      <q-btn :hidden="hidden" label="Confirm" color="primary" @click.native="publishPost" class="q-ml-sm" />
+      <q-btn :hidden="hidden" :disable="disable_confirm" label="Confirm" color="primary" @click.native="publishPost" class="q-ml-sm" />
     </div>
   </q-modal>
   <q-layout-header>
@@ -195,7 +195,9 @@ export default {
       student_keys: [],
       canPostInAdmin: false,
       canPostInStudent: false,
-      readonly_code: false
+      readonly_code: false,
+      posting_now: false,
+      disable_confirm: false
     }
   },
   methods: {
@@ -226,9 +228,12 @@ export default {
       this.books = []
       this.$studentref.on('value', (snapshoti) => {
         // console.log(snapshoti.val())
-        this.$q.loading.hide()
+        if (this.posting_now === false) {
+          this.$q.loading.hide()
+        }
+        // console.log('"Printing selection"')
         this.books = snapshoti.val()
-        console.log(this.books.length)
+        // console.log(this.books.length)
         // console.log(this.books)
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
@@ -339,8 +344,10 @@ export default {
       this.$bookref.on('value', (snapshot) => {
         // console.log(snapshot.val())
         this.books = snapshot.val()
-        console.log(this.books.length)
-        this.$q.loading.hide()
+        // console.log(this.books.length)
+        if (this.posting_now === false) {
+          this.$q.loading.hide()
+        }
         // console.log(this.books[1]['Random Seed'])
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
@@ -357,29 +364,29 @@ export default {
     },
     async publishPost () { // First checks all validation -> Upload Profile Pic -> Uplaod Thumbnail -> post on firebase
       await this.setTimeStamp() // Updating time here everytime before posting.
+      this.$firebase.auth().signInAnonymously().catch((error) => {
+        // Handle Errors here.
+        this.$q.notify(error.message)
+        // ...
+      })
       // await this.getdata()
-      this.$q.loading.show({message: 'Please Wait...'})
       if (this.$v.text.$invalid) {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true
-        this.$q.loading.hide()
       } else if (this.$v.thumbnail.$invalid) {
         this.$q.notify('A Thumbnail image or video is required')
         this.error_mobile = false
         this.error_thumbnail = true
-        this.$q.loading.hide()
       } else if (this.$v.title.$invalid) {
         this.$q.notify('Enter a valid title with a length of 8 or more but less than 90.')
         this.error_thumbnail = false
         this.error_mobile = false
         this.error_title = true
-        this.$q.loading.hide()
       } else if (this.$v.code.$invalid) {
         this.error_mobile = false
         this.error_thumbnail = false
         this.error_title = false
         this.error_verification = true
-        this.$q.loading.hide()
         this.$q.notify('Please enter correct 6 digit verification code')
       } else if (this.$v.profile_pic.$invalid) {
         this.$q.notify('Enter a valid title with a length of 8 characters or more but less than 90.')
@@ -387,7 +394,6 @@ export default {
         this.error_mobile = false
         this.error_title = false
         this.error_profilepic = true
-        this.$q.loading.hide()
       } else if (this.$v.auth_text.$invalid) {
         this.$q.notify('Enter a valid AUTH code')
         this.error_thumbnail = false
@@ -395,7 +401,6 @@ export default {
         this.error_title = false
         this.error_profilepic = false
         this.error_auth_code = true
-        this.$q.loading.hide()
       } else {
         this.error_mobile = false
         this.error_thumbnail = false
@@ -403,14 +408,17 @@ export default {
         this.error_title = false
         this.error_profilepic = false
         this.error_auth_code = false
+        this.posting_now = true
+        this.disable_confirm = true
+        this.$q.loading.show({message: 'Please Wait While Uploading Profile Pic...'})
+        this.closeModal()
         window.confirmationResult.confirm(this.code).then(() => {
-          this.opened = false
           let formDatap = new FormData()
-          console.log(this.pp_files[0])
+          // console.log(this.pp_files[0])
           formDatap.append('file', this.pp_files[0])
           formDatap.append('tags', `gndu, board, notice`)
-          formDatap.append('upload_preset', 'myldschl') // Replace the preset name with your own
-          formDatap.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
+          formDatap.append('upload_preset', 'myldschl')
+          formDatap.append('api_key', '985345875982584')
           formDatap.append('timestamp', (this.timestamp / 1000) | 0)
           this.$q.loading.show({message: 'Please Wait While Uploading Profile Pic...'})
           this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formDatap, {
@@ -426,8 +434,8 @@ export default {
             let formData2 = new FormData()
             formData2.append('file', this.thumbnail_files[0])
             formData2.append('tags', `gndu, board, notice`)
-            formData2.append('upload_preset', 'myldschl') // Replace the preset name with your own
-            formData2.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
+            formData2.append('upload_preset', 'myldschl')
+            formData2.append('api_key', '985345875982584')
             formData2.append('timestamp', (this.timestamp / 1000) | 0)
             this.$q.loading.show({message: 'Please Wait While Uploading Thumbnail Pic...'})
             this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formData2, {
@@ -438,7 +446,7 @@ export default {
               let datat = responset.data
               this.thumbnail_fileURL = datat.secure_url
               // console.log(data)
-              console.log(this.books.length)
+              // console.log(this.books.length)
               console.log(this.thumbnail_fileURL)
               this.$q.loading.show({message: 'Please Wait While Posting Your Request...'})
               this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
@@ -465,27 +473,38 @@ export default {
                   console.log('"Hiding"')
                   this.$q.loading.hide()
                   this.readonly_code = false
-                  this.opened = false
                   this.hidden = true
+                  this.posting_now = false
+                  this.disable_confirm = false
                 }).catch((err) => {
                   this.$q.notify(err.message)
                   this.$q.loading.hide()
+                  this.posting_now = false
+                  this.disable_confirm = false
                 })
               }).catch((err) => {
                 this.$q.notify(err)
                 this.$q.loading.hide()
+                this.posting_now = false
+                this.disable_confirm = false
               })
             }).catch((err) => {
               this.$q.notify(err)
               this.$q.loading.hide()
+              this.posting_now = false
+              this.disable_confirm = false
             })
           }).catch((err) => {
             this.$q.notify(err)
             this.$q.loading.hide()
+            this.posting_now = false
+            this.disable_confirm = false
           })
         }).catch((err) => {
           this.$q.notify(err)
           this.$q.loading.hide()
+          this.posting_now = false
+          this.disable_confirm = false
         })
       }
     },
@@ -502,7 +521,9 @@ export default {
         this.$studentref.on('value', (snapshot) => {
           // console.log(snapshot.val())
           this.books = snapshot.val()
-          this.$q.loading.hide()
+          if (this.posting_now === false) {
+            this.$q.loading.hide()
+          }
         }, function (errorObject) {
           console.log('The read failed: ' + errorObject.code)
         })
@@ -510,7 +531,9 @@ export default {
         this.$bookref.on('value', (snapshot) => {
           // console.log(snapshot.val())
           this.books = snapshot.val()
-          this.$q.loading.hide()
+          if (this.posting_now === false) {
+            this.$q.loading.hide()
+          }
         }, function (errorObject) {
           console.log('The read failed: ' + errorObject.code)
         })
@@ -538,7 +561,7 @@ export default {
       this.$q.notify(error.message)
       // ...
     })
-    // knwon error: Get data runs again when user authorized from mobile phone.
+    // known error: Get data runs again when user authorized from mobile phone.
     this.$firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         // User is signed in.

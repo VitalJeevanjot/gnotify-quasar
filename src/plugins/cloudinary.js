@@ -1,4 +1,5 @@
 // import something here
+// Not in the using in this app right now ....
 let cloudinary = require('cloudinary')
 let cloudApp = cloudinary.config({
   cloud_name: 'notyfy',

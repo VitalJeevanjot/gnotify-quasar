@@ -199,12 +199,14 @@ export default {
       disable_uploader: false,
       recent_post: '',
       post_id: 0,
-      uid: null
+      uid: null,
+      onstart: true
     }
   },
   mounted () {
+    this.onstart = true
     this.$q.loading.show()
-    this.$firebase.auth().signInAnonymously().catch((error) => {
+    this.$firebase.auth().signInAnonymously().then(() => console.log('"Mounted Signed Anny"')).catch((error) => {
       // Handle Errors here.
       this.$q.notify(error.message)
       // ...
@@ -261,6 +263,12 @@ export default {
       this.thumbnail = ''
     },
     async publishUpdate () { // First checks all validation -> Upload Profile Pic -> Uplaod Thumbnail -> post on firebase
+      this.onstart = false
+      this.$firebase.auth().signInAnonymously().catch((error) => {
+        // Handle Errors here.
+        this.$q.notify(error.message)
+        // ...
+      })
       this.$q.loading.show({message: 'Please Wait...'})
       await this.setTimeStamp() // Updating time here everytime before posting.
       if (this.$v.text.$invalid && this.disable_editor === false) {
@@ -331,10 +339,10 @@ export default {
         this.error_verification = false
         this.error_title = false
         this.error_profilepic = false
+        this.closeModal()
+        this.$q.loading.show({message: 'Please Wait While Uploading Profile Pic...'})
         window.confirmationResult.confirm(this.code).then(() => {
-          this.opened = false
           let formDatap = new FormData()
-          console.log(this.pp_files[0])
           formDatap.append('file', this.pp_files[0])
           formDatap.append('tags', `gndu, board, notice`)
           formDatap.append('upload_preset', 'myldschl') // Replace the preset name with your own
@@ -356,6 +364,7 @@ export default {
             formData2.append('upload_preset', 'myldschl') // Replace the preset name with your own
             formData2.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
             formData2.append('timestamp', (this.timestamp / 1000) | 0)
+            this.$q.loading.show({message: 'Please Wait While Uploading Thumbnail Pic...'})
             this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formData2, {
               headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -365,8 +374,9 @@ export default {
               this.thumbnail_fileURL = datat.secure_url
               // console.log(data)
               console.log(this.thumbnail_fileURL)
+              this.$q.loading.show({message: 'Please Wait While Posting Your Request...'})
               this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
-                this.$firebase.database().ref(this.wheretoPost + '/' + this.post_number).set({
+                this.$firebase.database().ref(this.wheretoPost + '/' + this.post_number + '/').set({
                   Body: this.model,
                   Comments: 'later',
                   Image: this.thumbnail_fileURL,
@@ -387,7 +397,6 @@ export default {
                     color: 'green'
                   })
                   this.$q.loading.hide()
-                  this.opened = false
                   this.$router.push('/')
                   this.hidden = true
                 }).catch((err) => {
@@ -413,6 +422,7 @@ export default {
       }
     },
     sendsms () {
+      console.log(this.title)
       this.$q.loading.show({message: 'Please Wait...'})
       if (this.$v.text.$invalid && this.disable_editor === false) {
         this.$q.notify('10 Digit Mobile number is required.')
@@ -480,48 +490,49 @@ export default {
       })
     },
     getData () {
-      this.$bookref.once('value', (snapshot) => {
-        this.books = []
-        this.books = snapshot.val()
-        for (var i = 0; i < this.books.length; i++) {
-          if (this.books[i].Random_Seed === this.$route.params.id) {
-            this.model = this.books[i].Body
-            this.mobile_no = this.books[i].Mobile
-            this.title = this.books[i].Title
-            this.datetime = this.books[i].DateTime
-            this.profile_pic = this.books[i].Profile_Pic
-            this.image = this.books[i].Image
-            this.code_used = this.books[i].code_used
-            this.recent_post = this.books[i].Recent_Post
-            this.post_id = this.books[i].post_id
-            this.$q.loading.hide()
+      if (this.$route.params.location === 'admin' && this.onstart === true) {
+        this.$studentref.off()
+        this.$bookref.on('value', (snapshot) => {
+          this.books = []
+          this.books = snapshot.val()
+          for (var i = 0; i < this.books.length; i++) {
+            if (this.books[i].Random_Seed === this.$route.params.id) {
+              this.model = this.books[i].Body
+              this.mobile_no = this.books[i].Mobile
+              this.title = this.books[i].Title
+              this.datetime = this.books[i].DateTime
+              this.profile_pic = this.books[i].Profile_Pic
+              this.image = this.books[i].Image
+              this.code_used = this.books[i].code_used
+              this.post_id = this.books[i].post_id
+              this.$q.loading.hide()
+            }
           }
-        }
-      }, function (errorObject) {
-        console.log('The read failed: ' + errorObject.code)
-      })
-      this.$studentref.once('value', (snapshoti) => {
-        // console.log(snapshoti.val())
-        this.books = []
-        this.books = snapshoti.val()
-        // console.log(this.books)
-        for (var i = 0; i < this.books.length; i++) {
-          if (this.books[i].Random_Seed === this.$route.params.id) {
-            this.model = this.books[i].Body
-            this.mobile_no = this.books[i].Mobile
-            this.title = this.books[i].Title
-            this.datetime = this.books[i].DateTime
-            this.profile_pic = this.books[i].Profile_Pic
-            this.image = this.books[i].Image
-            this.code_used = this.books[i].code_used
-            this.recent_post = this.books[i].Recent_Post
-            this.$q.loading.hide()
+        }, function (errorObject) {
+          console.log('The read failed: ' + errorObject.code)
+        })
+      } else if (this.$route.params.location === 'student' && this.onstart === true) {
+        this.$bookref.off()
+        this.$studentref.on('value', (snapshot) => {
+          this.books = []
+          this.books = snapshot.val()
+          for (var i = 0; i < this.books.length; i++) {
+            if (this.books[i].Random_Seed === this.$route.params.id) {
+              this.model = this.books[i].Body
+              this.mobile_no = this.books[i].Mobile
+              this.title = this.books[i].Title
+              this.datetime = this.books[i].DateTime
+              this.profile_pic = this.books[i].Profile_Pic
+              this.image = this.books[i].Image
+              this.code_used = this.books[i].code_used
+              this.post_id = this.books[i].post_id
+              this.$q.loading.hide()
+            }
           }
-        }
-        // console.log(Math.round((Math.random() * (9000000000) + 1000000000)))
-      }, function (errorObject) {
-        console.log('The read failed: ' + errorObject.code)
-      })
+        }, function (errorObject) {
+          console.log('The read failed: ' + errorObject.code)
+        })
+      }
     }
   },
   validations: {
