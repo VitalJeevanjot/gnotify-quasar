@@ -486,6 +486,33 @@ export default {
       }).catch((err) => {
         this.$q.notify(err)
       })
+    },
+    getdata () {
+      this.$bookref.once('value', (snapshot) => {
+        // console.log(snapshot.val())
+        this.books = snapshot.val()
+        this.$q.loading.hide()
+      }, function (errorObject) {
+        console.log('The read failed: ' + errorObject.code)
+      })
+      this.$adminKeys.once('value', (snapshot) => {
+        // console.log(snapshot.val())
+        this.admin_keys = snapshot.val()
+        this.$q.loading.hide()
+      }, function (errorObject) {
+        console.log('The read failed: ' + errorObject.code)
+      })
+      this.$studentKeys.once('value', (snapshot) => {
+        // console.log(snapshot.val())
+        this.student_keys = snapshot.val()
+        this.$q.loading.hide()
+      }, function (errorObject) {
+        console.log('The read failed: ' + errorObject.code)
+      })
+      window.recaptchaVerifier = new this.$firebase.auth.RecaptchaVerifier('sendSms', {
+        'size': 'invisible',
+        'callback': function (response) {}
+      })
     }
   },
   mounted () {
@@ -500,6 +527,7 @@ export default {
         // User is signed in.
         // var isAnonymous = user.isAnonymous
         this.uid = user.uid
+        this.getdata()
         // console.log(this.uid)
       // ...
       } else {
@@ -512,31 +540,6 @@ export default {
     this.$q.loading.show()
     this.setTimeStamp()
     this.$firebase.auth().useDeviceLanguage()
-    this.$bookref.once('value', (snapshot) => {
-      // console.log(snapshot.val())
-      this.books = snapshot.val()
-      this.$q.loading.hide()
-    }, function (errorObject) {
-      console.log('The read failed: ' + errorObject.code)
-    })
-    this.$adminKeys.once('value', (snapshot) => {
-      // console.log(snapshot.val())
-      this.admin_keys = snapshot.val()
-      this.$q.loading.hide()
-    }, function (errorObject) {
-      console.log('The read failed: ' + errorObject.code)
-    })
-    this.$studentKeys.once('value', (snapshot) => {
-      // console.log(snapshot.val())
-      this.student_keys = snapshot.val()
-      this.$q.loading.hide()
-    }, function (errorObject) {
-      console.log('The read failed: ' + errorObject.code)
-    })
-    window.recaptchaVerifier = new this.$firebase.auth.RecaptchaVerifier('sendSms', {
-      'size': 'invisible',
-      'callback': function (response) {}
-    })
     //  console.log(this.books[1])
   },
   validations: {

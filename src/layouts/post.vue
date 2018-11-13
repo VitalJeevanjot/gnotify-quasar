@@ -214,6 +214,7 @@ export default {
         // User is signed in.
         // var isAnonymous = user.isAnonymous
         this.uid = user.uid
+        this.getData()
         // console.log(this.uid)
       // ...
       } else {
@@ -224,48 +225,6 @@ export default {
     })
     this.wheretoPost = this.$route.params.location
     this.post_number = this.$route.params.pn
-    this.$bookref.once('value', (snapshot) => {
-      this.books = []
-      this.books = snapshot.val()
-      for (var i = 0; i < this.books.length; i++) {
-        if (this.books[i].Random_Seed === this.$route.params.id) {
-          this.model = this.books[i].Body
-          this.mobile_no = this.books[i].Mobile
-          this.title = this.books[i].Title
-          this.datetime = this.books[i].DateTime
-          this.profile_pic = this.books[i].Profile_Pic
-          this.image = this.books[i].Image
-          this.code_used = this.books[i].code_used
-          this.recent_post = this.books[i].Recent_Post
-          this.post_id = this.books[i].post_id
-          this.$q.loading.hide()
-        }
-      }
-    }, function (errorObject) {
-      console.log('The read failed: ' + errorObject.code)
-    })
-    this.$studentref.once('value', (snapshoti) => {
-      // console.log(snapshoti.val())
-      this.books = []
-      this.books = snapshoti.val()
-      // console.log(this.books)
-      for (var i = 0; i < this.books.length; i++) {
-        if (this.books[i].Random_Seed === this.$route.params.id) {
-          this.model = this.books[i].Body
-          this.mobile_no = this.books[i].Mobile
-          this.title = this.books[i].Title
-          this.datetime = this.books[i].DateTime
-          this.profile_pic = this.books[i].Profile_Pic
-          this.image = this.books[i].Image
-          this.code_used = this.books[i].code_used
-          this.recent_post = this.books[i].Recent_Post
-          this.$q.loading.hide()
-        }
-      }
-      // console.log(Math.round((Math.random() * (9000000000) + 1000000000)))
-    }, function (errorObject) {
-      console.log('The read failed: ' + errorObject.code)
-    })
   },
   methods: {
     makeItNull (val) {
@@ -518,6 +477,50 @@ export default {
         // console.log(this.timestamp / 1000 + 'OK')
       }).catch((err) => {
         this.$q.notify(err)
+      })
+    },
+    getData () {
+      this.$bookref.once('value', (snapshot) => {
+        this.books = []
+        this.books = snapshot.val()
+        for (var i = 0; i < this.books.length; i++) {
+          if (this.books[i].Random_Seed === this.$route.params.id) {
+            this.model = this.books[i].Body
+            this.mobile_no = this.books[i].Mobile
+            this.title = this.books[i].Title
+            this.datetime = this.books[i].DateTime
+            this.profile_pic = this.books[i].Profile_Pic
+            this.image = this.books[i].Image
+            this.code_used = this.books[i].code_used
+            this.recent_post = this.books[i].Recent_Post
+            this.post_id = this.books[i].post_id
+            this.$q.loading.hide()
+          }
+        }
+      }, function (errorObject) {
+        console.log('The read failed: ' + errorObject.code)
+      })
+      this.$studentref.once('value', (snapshoti) => {
+        // console.log(snapshoti.val())
+        this.books = []
+        this.books = snapshoti.val()
+        // console.log(this.books)
+        for (var i = 0; i < this.books.length; i++) {
+          if (this.books[i].Random_Seed === this.$route.params.id) {
+            this.model = this.books[i].Body
+            this.mobile_no = this.books[i].Mobile
+            this.title = this.books[i].Title
+            this.datetime = this.books[i].DateTime
+            this.profile_pic = this.books[i].Profile_Pic
+            this.image = this.books[i].Image
+            this.code_used = this.books[i].code_used
+            this.recent_post = this.books[i].Recent_Post
+            this.$q.loading.hide()
+          }
+        }
+        // console.log(Math.round((Math.random() * (9000000000) + 1000000000)))
+      }, function (errorObject) {
+        console.log('The read failed: ' + errorObject.code)
       })
     }
   },

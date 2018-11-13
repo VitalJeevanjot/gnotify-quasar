@@ -121,6 +121,7 @@ export default {
         // User is signed in.
         // var isAnonymous = user.isAnonymous
         this.uid = user.uid
+        this.reReadValues()
         // console.log(this.uid)
       // ...
       } else {
@@ -128,21 +129,6 @@ export default {
       // ...
       }
       // ...
-    })
-    this.$specialKeys.once('value', (snapshot) => {
-      this.keys = snapshot.val()
-    }, function (errorObject) {
-      console.log('The read failed: ' + errorObject.code)
-    })
-    this.$adminKeys.once('value', (snapshot) => {
-      this.admin_keys = snapshot.val()
-    }, function (errorObject) {
-      console.log('The read failed: ' + errorObject.code)
-    })
-    this.$studentKeys.once('value', (snapshot) => {
-      this.student_keys = snapshot.val()
-    }, function (errorObject) {
-      console.log('The read failed: ' + errorObject.code)
     })
   }
 }
