@@ -117,9 +117,9 @@
   </q-layout-header>
   <q-page-container>
     <q-page>
-      <q-tabs underline-color="secondary" swipeable color="black" align="justify" v-model="selectedTab">
-        <q-tab label="Admin Board" slot="title" name="tab-1" icon="dashboard" @select="openAdminBoard" />
-        <q-tab label="Student board" slot="title" name="tab-2" icon="developer_board" @select="openStudentBoard" />
+      <q-tabs underline-color="secondary" swipeable color="black" align="justify">
+        <q-tab label="Admin Board" slot="title" default icon="dashboard" @select="openAdminBoard" />
+        <q-tab label="Student board" slot="title" icon="developer_board" @select="openStudentBoard" />
       </q-tabs>
       <!-- // random string generator for urls https://helloacm.com/api/random/?n=128 -->
       <div class="row justify-center">
@@ -222,12 +222,13 @@ export default {
       // this.$router.push('/student')
       this.wheretoPost = 'student/'
       // console.log('opening S board')
+      this.$bookref.off()
       this.books = []
-      this.$studentref.once('value', (snapshoti) => {
+      this.$studentref.on('value', (snapshoti) => {
         // console.log(snapshoti.val())
         this.$q.loading.hide()
         this.books = snapshoti.val()
-        // console.log(this.books)
+        console.log(this.books.length)
         // console.log(this.books)
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
@@ -332,11 +333,13 @@ export default {
     openAdminBoard () {
       this.$q.loading.show()
       // console.log('opening A board')
+      this.$studentref.off()
       this.books = []
       this.wheretoPost = 'admin/'
-      this.$bookref.once('value', (snapshot) => {
+      this.$bookref.on('value', (snapshot) => {
         // console.log(snapshot.val())
         this.books = snapshot.val()
+        console.log(this.books.length)
         this.$q.loading.hide()
         // console.log(this.books[1]['Random Seed'])
       }, function (errorObject) {
@@ -353,8 +356,9 @@ export default {
       this.opened = false
     },
     async publishPost () { // First checks all validation -> Upload Profile Pic -> Uplaod Thumbnail -> post on firebase
-      this.$q.loading.show({message: 'Please Wait...'})
       await this.setTimeStamp() // Updating time here everytime before posting.
+      // await this.getdata()
+      this.$q.loading.show({message: 'Please Wait...'})
       if (this.$v.text.$invalid) {
         this.$q.notify('10 Digit Mobile number is required.')
         this.error_mobile = true
@@ -391,6 +395,7 @@ export default {
         this.error_title = false
         this.error_profilepic = false
         this.error_auth_code = true
+        this.$q.loading.hide()
       } else {
         this.error_mobile = false
         this.error_thumbnail = false
@@ -407,6 +412,7 @@ export default {
           formDatap.append('upload_preset', 'myldschl') // Replace the preset name with your own
           formDatap.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
           formDatap.append('timestamp', (this.timestamp / 1000) | 0)
+          this.$q.loading.show({message: 'Please Wait While Uploading Profile Pic...'})
           this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formDatap, {
             headers: {
               'X-Requested-With': 'XMLHttpRequest'
@@ -423,6 +429,7 @@ export default {
             formData2.append('upload_preset', 'myldschl') // Replace the preset name with your own
             formData2.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
             formData2.append('timestamp', (this.timestamp / 1000) | 0)
+            this.$q.loading.show({message: 'Please Wait While Uploading Thumbnail Pic...'})
             this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formData2, {
               headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -431,7 +438,9 @@ export default {
               let datat = responset.data
               this.thumbnail_fileURL = datat.secure_url
               // console.log(data)
+              console.log(this.books.length)
               console.log(this.thumbnail_fileURL)
+              this.$q.loading.show({message: 'Please Wait While Posting Your Request...'})
               this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
                 this.$firebase.database().ref(this.wheretoPost + this.books.length).set({
                   Body: this.model,
@@ -450,9 +459,10 @@ export default {
                   post_id: this.books.length // for routing purposes
                 }).then(() => {
                   this.$q.notify({
-                    message: 'Post Published! Refresh your page.',
+                    message: 'Post Published!',
                     color: 'green'
                   })
+                  console.log('"Hiding"')
                   this.$q.loading.hide()
                   this.readonly_code = false
                   this.opened = false
@@ -488,30 +498,36 @@ export default {
       })
     },
     getdata () {
-      this.$bookref.once('value', (snapshot) => {
-        // console.log(snapshot.val())
-        this.books = snapshot.val()
-        this.$q.loading.hide()
-      }, function (errorObject) {
-        console.log('The read failed: ' + errorObject.code)
-      })
-      this.$adminKeys.once('value', (snapshot) => {
+      if (this.wheretoPost === 'student/') {
+        this.$studentref.on('value', (snapshot) => {
+          // console.log(snapshot.val())
+          this.books = snapshot.val()
+          this.$q.loading.hide()
+        }, function (errorObject) {
+          console.log('The read failed: ' + errorObject.code)
+        })
+      } else if (this.wheretoPost === 'admin/') {
+        this.$bookref.on('value', (snapshot) => {
+          // console.log(snapshot.val())
+          this.books = snapshot.val()
+          this.$q.loading.hide()
+        }, function (errorObject) {
+          console.log('The read failed: ' + errorObject.code)
+        })
+      }
+      this.$adminKeys.on('value', (snapshot) => {
         // console.log(snapshot.val())
         this.admin_keys = snapshot.val()
         this.$q.loading.hide()
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
       })
-      this.$studentKeys.once('value', (snapshot) => {
+      this.$studentKeys.on('value', (snapshot) => {
         // console.log(snapshot.val())
         this.student_keys = snapshot.val()
         this.$q.loading.hide()
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
-      })
-      window.recaptchaVerifier = new this.$firebase.auth.RecaptchaVerifier('sendSms', {
-        'size': 'invisible',
-        'callback': function (response) {}
       })
     }
   },
@@ -522,6 +538,7 @@ export default {
       this.$q.notify(error.message)
       // ...
     })
+    // knwon error: Get data runs again when user authorized from mobile phone.
     this.$firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         // User is signed in.
@@ -540,6 +557,10 @@ export default {
     this.$q.loading.show()
     this.setTimeStamp()
     this.$firebase.auth().useDeviceLanguage()
+    window.recaptchaVerifier = new this.$firebase.auth.RecaptchaVerifier('sendSms', {
+      'size': 'invisible',
+      'callback': function (response) {}
+    })
     //  console.log(this.books[1])
   },
   validations: {
