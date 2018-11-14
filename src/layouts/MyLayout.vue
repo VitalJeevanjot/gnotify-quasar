@@ -440,7 +440,7 @@ export default {
           this.error_auth_code = false
           this.posting_now = true
           this.disable_confirm = true
-          this.$q.loading.show({message: 'Please Wait While Uploading Profile Pic...'})
+          this.$q.loading.show({message: 'Do not refresh the page.'})
           this.closeModal()
           window.confirmationResult.confirm(this.code).then(() => {
             let formDatap = new FormData()
@@ -450,7 +450,8 @@ export default {
             formDatap.append('upload_preset', 'myldschl')
             formDatap.append('api_key', '985345875982584')
             formDatap.append('timestamp', (this.timestamp / 1000) | 0)
-            this.$q.loading.show({message: 'Please Wait While Uploading Profile Pic...'})
+            this.$q.loading.show()
+            this.$q.loading.show({message: 'Wait for confirmation to appear...'})
             this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formDatap, {
               headers: {
                 'X-Requested-With': 'XMLHttpRequest'
