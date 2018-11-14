@@ -231,6 +231,7 @@ export default {
         if (this.posting_now === false) {
           this.$q.loading.hide()
         }
+        console.log('"openStudentBoard"')
         // console.log('"Printing selection"')
         this.books = snapshoti.val()
         // console.log(this.books.length)
@@ -348,6 +349,7 @@ export default {
         if (this.posting_now === false) {
           this.$q.loading.hide()
         }
+        console.log('"openAdminBoard"')
         // console.log(this.books[1]['Random Seed'])
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
@@ -440,7 +442,7 @@ export default {
           this.error_auth_code = false
           this.posting_now = true
           this.disable_confirm = true
-          this.$q.loading.show({message: 'Do not refresh the page.'})
+          this.$q.loading.show({message: 'Please wait and do not refresh the page.'})
           this.closeModal()
           window.confirmationResult.confirm(this.code).then(() => {
             let formDatap = new FormData()
@@ -450,8 +452,7 @@ export default {
             formDatap.append('upload_preset', 'myldschl')
             formDatap.append('api_key', '985345875982584')
             formDatap.append('timestamp', (this.timestamp / 1000) | 0)
-            this.$q.loading.show()
-            this.$q.loading.show({message: 'Wait for confirmation to appear...'})
+            this.$q.loading.show({message: 'Uploading Profile Pic...'})
             this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formDatap, {
               headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -468,7 +469,7 @@ export default {
               formData2.append('upload_preset', 'myldschl')
               formData2.append('api_key', '985345875982584')
               formData2.append('timestamp', (this.timestamp / 1000) | 0)
-              this.$q.loading.show({message: 'Please Wait While Uploading Thumbnail Pic...'})
+              this.$q.loading.show({message: 'Uploading Thumbnail Pic...'})
               this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formData2, {
                 headers: {
                   'X-Requested-With': 'XMLHttpRequest'
@@ -479,7 +480,7 @@ export default {
                 // console.log(data)
                 // console.log(this.books.length)
                 console.log(this.thumbnail_fileURL)
-                this.$q.loading.show({message: 'Please Wait While Posting Your Request...'})
+                this.$q.loading.show({message: 'Posting Your Request...'})
                 this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
                   this.$firebase.database().ref(this.wheretoPost + this.books.length).set({
                     Body: this.model,
@@ -549,6 +550,7 @@ export default {
       })
     },
     getdata () {
+      console.log('"getdata"')
       if (this.wheretoPost === 'student/') {
         this.$studentref.on('value', (snapshot) => {
           // console.log(snapshot.val())
@@ -573,14 +575,18 @@ export default {
       this.$adminKeys.on('value', (snapshot) => {
         // console.log(snapshot.val())
         this.admin_keys = snapshot.val()
-        this.$q.loading.hide()
+        if (this.posting_now === false) {
+          this.$q.loading.hide()
+        }
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
       })
       this.$studentKeys.on('value', (snapshot) => {
         // console.log(snapshot.val())
         this.student_keys = snapshot.val()
-        this.$q.loading.hide()
+        if (this.posting_now === false) {
+          this.$q.loading.hide()
+        }
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
       })
