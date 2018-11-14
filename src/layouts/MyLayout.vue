@@ -363,121 +363,157 @@ export default {
       this.opened = false
     },
     async publishPost () { // First checks all validation -> Upload Profile Pic -> Uplaod Thumbnail -> post on firebase
+      if (this.wheretoPost === 'student/') {
+        this.canPostInStudent = false
+        this.canPostInAdmin = false // These lines here and in below block ensure that after posting on student the user cannot post in admin.
+        for (var i = 0; i < this.student_keys.length; i++) {
+          if (this.student_keys[i].Key.toString() === this.auth_text && this.student_keys[i].Can_Use === 'true') {
+            this.canPostInStudent = true
+            this.canPostInAdmin = false
+            this.readonly_code = true
+          }
+        }
+        if (this.canPostInStudent === false) {
+          this.$q.notify('Your code is not correct or your code is disabled.')
+          this.$q.loading.hide()
+        }
+      } else if (this.wheretoPost === 'admin/') {
+        this.canPostInStudent = false
+        this.canPostInAdmin = false
+        for (var ia = 0; ia < this.admin_keys.length; ia++) {
+          if (this.admin_keys[ia].Key.toString() === this.auth_text && this.admin_keys[ia].Can_Use === 'true') {
+            this.canPostInStudent = false
+            this.canPostInAdmin = true
+            this.readonly_code = true
+          }
+        }
+        if (this.canPostInAdmin === false) {
+          this.$q.notify('Your code is not correct or your code is disabled.')
+          this.$q.loading.hide()
+        }
+      }
       await this.setTimeStamp() // Updating time here everytime before posting.
-      this.$firebase.auth().signInAnonymously().catch((error) => {
-        // Handle Errors here.
-        this.$q.notify(error.message)
-        // ...
-      })
-      // await this.getdata()
-      if (this.$v.text.$invalid) {
-        this.$q.notify('10 Digit Mobile number is required.')
-        this.error_mobile = true
-      } else if (this.$v.thumbnail.$invalid) {
-        this.$q.notify('A Thumbnail image or video is required')
-        this.error_mobile = false
-        this.error_thumbnail = true
-      } else if (this.$v.title.$invalid) {
-        this.$q.notify('Enter a valid title with a length of 8 or more but less than 90.')
-        this.error_thumbnail = false
-        this.error_mobile = false
-        this.error_title = true
-      } else if (this.$v.code.$invalid) {
-        this.error_mobile = false
-        this.error_thumbnail = false
-        this.error_title = false
-        this.error_verification = true
-        this.$q.notify('Please enter correct 6 digit verification code')
-      } else if (this.$v.profile_pic.$invalid) {
-        this.$q.notify('Enter a valid title with a length of 8 characters or more but less than 90.')
-        this.error_thumbnail = false
-        this.error_mobile = false
-        this.error_title = false
-        this.error_profilepic = true
-      } else if (this.$v.auth_text.$invalid) {
-        this.$q.notify('Enter a valid AUTH code')
-        this.error_thumbnail = false
-        this.error_mobile = false
-        this.error_title = false
-        this.error_profilepic = false
-        this.error_auth_code = true
-      } else {
-        this.error_mobile = false
-        this.error_thumbnail = false
-        this.error_verification = false
-        this.error_title = false
-        this.error_profilepic = false
-        this.error_auth_code = false
-        this.posting_now = true
-        this.disable_confirm = true
-        this.$q.loading.show({message: 'Please Wait While Uploading Profile Pic...'})
-        this.closeModal()
-        window.confirmationResult.confirm(this.code).then(() => {
-          let formDatap = new FormData()
-          // console.log(this.pp_files[0])
-          formDatap.append('file', this.pp_files[0])
-          formDatap.append('tags', `gndu, board, notice`)
-          formDatap.append('upload_preset', 'myldschl')
-          formDatap.append('api_key', '985345875982584')
-          formDatap.append('timestamp', (this.timestamp / 1000) | 0)
+      if (this.canPostInAdmin === true || this.canPostInStudent === true) {
+        this.$firebase.auth().signInAnonymously().catch((error) => {
+          // Handle Errors here.
+          this.$q.notify(error.message)
+          // ...
+        })
+        // await this.getdata()
+        if (this.$v.text.$invalid) {
+          this.$q.notify('10 Digit Mobile number is required.')
+          this.error_mobile = true
+        } else if (this.$v.thumbnail.$invalid) {
+          this.$q.notify('A Thumbnail image or video is required')
+          this.error_mobile = false
+          this.error_thumbnail = true
+        } else if (this.$v.title.$invalid) {
+          this.$q.notify('Enter a valid title with a length of 8 or more but less than 90.')
+          this.error_thumbnail = false
+          this.error_mobile = false
+          this.error_title = true
+        } else if (this.$v.code.$invalid) {
+          this.error_mobile = false
+          this.error_thumbnail = false
+          this.error_title = false
+          this.error_verification = true
+          this.$q.notify('Please enter correct 6 digit verification code')
+        } else if (this.$v.profile_pic.$invalid) {
+          this.$q.notify('Enter a valid title with a length of 8 characters or more but less than 90.')
+          this.error_thumbnail = false
+          this.error_mobile = false
+          this.error_title = false
+          this.error_profilepic = true
+        } else if (this.$v.auth_text.$invalid) {
+          this.$q.notify('Enter a valid AUTH code')
+          this.error_thumbnail = false
+          this.error_mobile = false
+          this.error_title = false
+          this.error_profilepic = false
+          this.error_auth_code = true
+        } else {
+          this.error_mobile = false
+          this.error_thumbnail = false
+          this.error_verification = false
+          this.error_title = false
+          this.error_profilepic = false
+          this.error_auth_code = false
+          this.posting_now = true
+          this.disable_confirm = true
           this.$q.loading.show({message: 'Please Wait While Uploading Profile Pic...'})
-          this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formDatap, {
-            headers: {
-              'X-Requested-With': 'XMLHttpRequest'
-            }
-          }).then((responsep) => {
-            let datap = responsep.data
-            this.pp_fileURL = datap.secure_url // You should store this URL for future references in your app
-            // console.log(data)
-            console.log(this.pp_fileURL)
-            // Thumbnail upload...
-            let formData2 = new FormData()
-            formData2.append('file', this.thumbnail_files[0])
-            formData2.append('tags', `gndu, board, notice`)
-            formData2.append('upload_preset', 'myldschl')
-            formData2.append('api_key', '985345875982584')
-            formData2.append('timestamp', (this.timestamp / 1000) | 0)
-            this.$q.loading.show({message: 'Please Wait While Uploading Thumbnail Pic...'})
-            this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formData2, {
+          this.closeModal()
+          window.confirmationResult.confirm(this.code).then(() => {
+            let formDatap = new FormData()
+            // console.log(this.pp_files[0])
+            formDatap.append('file', this.pp_files[0])
+            formDatap.append('tags', `gndu, board, notice`)
+            formDatap.append('upload_preset', 'myldschl')
+            formDatap.append('api_key', '985345875982584')
+            formDatap.append('timestamp', (this.timestamp / 1000) | 0)
+            this.$q.loading.show({message: 'Please Wait While Uploading Profile Pic...'})
+            this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formDatap, {
               headers: {
                 'X-Requested-With': 'XMLHttpRequest'
               }
-            }).then((responset) => {
-              let datat = responset.data
-              this.thumbnail_fileURL = datat.secure_url
+            }).then((responsep) => {
+              let datap = responsep.data
+              this.pp_fileURL = datap.secure_url // You should store this URL for future references in your app
               // console.log(data)
-              // console.log(this.books.length)
-              console.log(this.thumbnail_fileURL)
-              this.$q.loading.show({message: 'Please Wait While Posting Your Request...'})
-              this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
-                this.$firebase.database().ref(this.wheretoPost + this.books.length).set({
-                  Body: this.model,
-                  Comments: 'later',
-                  Image: this.thumbnail_fileURL,
-                  Mobile: this.text,
-                  Random_Seed: response.data,
-                  Recent_Post: this.books.length - 1,
-                  Title: this.title,
-                  Upvotes: '0',
-                  DateTime: this.timestamp.toString(),
-                  Profile_Pic: this.pp_fileURL,
-                  Updated_On: this.timestamp.toString(),
-                  null: 'false',
-                  code_used: this.auth_text,
-                  post_id: this.books.length // for routing purposes
-                }).then(() => {
-                  this.$q.notify({
-                    message: 'Post Published!',
-                    color: 'green'
+              console.log(this.pp_fileURL)
+              // Thumbnail upload...
+              let formData2 = new FormData()
+              formData2.append('file', this.thumbnail_files[0])
+              formData2.append('tags', `gndu, board, notice`)
+              formData2.append('upload_preset', 'myldschl')
+              formData2.append('api_key', '985345875982584')
+              formData2.append('timestamp', (this.timestamp / 1000) | 0)
+              this.$q.loading.show({message: 'Please Wait While Uploading Thumbnail Pic...'})
+              this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formData2, {
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest'
+                }
+              }).then((responset) => {
+                let datat = responset.data
+                this.thumbnail_fileURL = datat.secure_url
+                // console.log(data)
+                // console.log(this.books.length)
+                console.log(this.thumbnail_fileURL)
+                this.$q.loading.show({message: 'Please Wait While Posting Your Request...'})
+                this.$axios.get('https://helloacm.com/api/random/?n=128').then((response) => {
+                  this.$firebase.database().ref(this.wheretoPost + this.books.length).set({
+                    Body: this.model,
+                    Comments: 'later',
+                    Image: this.thumbnail_fileURL,
+                    Mobile: this.text,
+                    Random_Seed: response.data,
+                    Recent_Post: this.books.length - 1,
+                    Title: this.title,
+                    Upvotes: '0',
+                    DateTime: this.timestamp.toString(),
+                    Profile_Pic: this.pp_fileURL,
+                    Updated_On: this.timestamp.toString(),
+                    null: 'false',
+                    code_used: this.auth_text,
+                    post_id: this.books.length // for routing purposes
+                  }).then(() => {
+                    this.$q.notify({
+                      message: 'Post Published!',
+                      color: 'green'
+                    })
+                    console.log('"Hiding"')
+                    this.$q.loading.hide()
+                    this.readonly_code = false
+                    this.hidden = true
+                    this.posting_now = false
+                    this.disable_confirm = false
+                  }).catch((err) => {
+                    this.$q.notify(err.message)
+                    this.$q.loading.hide()
+                    this.posting_now = false
+                    this.disable_confirm = false
                   })
-                  console.log('"Hiding"')
-                  this.$q.loading.hide()
-                  this.readonly_code = false
-                  this.hidden = true
-                  this.posting_now = false
-                  this.disable_confirm = false
                 }).catch((err) => {
-                  this.$q.notify(err.message)
+                  this.$q.notify(err)
                   this.$q.loading.hide()
                   this.posting_now = false
                   this.disable_confirm = false
@@ -500,12 +536,7 @@ export default {
             this.posting_now = false
             this.disable_confirm = false
           })
-        }).catch((err) => {
-          this.$q.notify(err)
-          this.$q.loading.hide()
-          this.posting_now = false
-          this.disable_confirm = false
-        })
+        }
       }
     },
     async setTimeStamp () {
@@ -580,10 +611,15 @@ export default {
     this.$q.loading.show()
     this.setTimeStamp()
     this.$firebase.auth().useDeviceLanguage()
-    window.recaptchaVerifier = new this.$firebase.auth.RecaptchaVerifier('sendSms', {
-      'size': 'invisible',
-      'callback': function (response) {}
-    })
+    try {
+      window.recaptchaVerifier = new this.$firebase.auth.RecaptchaVerifier('sendSms', {
+        'size': 'invisible',
+        'callback': function (response) {}
+      })
+    } catch (err) {
+      this.$q.notify(err)
+      this.$q.loading.hide()
+    }
     //  console.log(this.books[1])
   },
   validations: {
