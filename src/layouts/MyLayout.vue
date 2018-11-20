@@ -6,12 +6,14 @@
         <q-btn flat @click.native="closeModal" label="back" />
       </p>
     </div>
-    <span class="text-light" align="center">Posting in {{this.wheretoPost.replace('/','')}}
-    </span>
+    <div class="row justify-center">
+          <span class="text-light" align="center">Posting in {{this.wheretoPost.replace('/','')}}
+          </span>
+    </div>
     <!-- title field  -->
     <div class="row">
       <div class="col-12">
-        <q-input type="text" :maxlength="90" inverted color="blue" no-shadow :error="error_title" v-model="title" float-label="Add Title *" clearable />
+        <q-input type="text" :maxlength="90" :before="[{icon: 'title', handler () {}}]" color="black text-black" no-shadow :error="error_title" v-model="title" float-label="Add Title *" clearable />
       </div>
       <br>
       <div class="col-12">
@@ -92,7 +94,7 @@
         <q-input type="tel" :readonly="readonly_code" :error="error_auth_code" v-model="auth_text" required float-label="AUTH Code *" clearable :maxlength="10" :decimals="0" placeholder="Enter AUTH Code" />
       </div>
       <div class="col-7 q-pr-sm">
-        <q-input type="tel" :error="error_mobile" v-model="text" required prefix="+91" float-label="Mobile number *" clearable :maxlength="10" :decimals="0" placeholder="Enter 10 digit mobile number" />
+        <q-input type="tel" :error="error_mobile" v-model="text" required prefix="+" float-label="Mobile number *" clearable :maxlength="15" :decimals="0" placeholder="Enter mobile number" />
       </div>
       <div class="col-6 q-pl-sm">
         <q-input type="tel" :error="error_verification" v-model="code" :disable="disable" float-label="Verification Code *" clearable :maxlength="6" :decimals="0" />
@@ -107,19 +109,19 @@
     </div>
   </q-modal>
   <q-layout-header>
-    <q-toolbar color="primary" :inverted="$q.theme === 'ios'">
+    <q-toolbar color="black" :inverted="$q.theme === 'ios'">
       <q-toolbar-title align="center">
-        Guru Nanak Dev University
-        <div slot="subtitle">online notice board by Jeevanjot singh</div>
+        Byteball Notification
+        <div slot="subtitle">online byteball news website by Jeevanjot singh</div>
       </q-toolbar-title>
       <q-btn icon="create" round flat id="postbtn" @click.native="openModal" />
     </q-toolbar>
   </q-layout-header>
   <q-page-container>
     <q-page>
-      <q-tabs underline-color="secondary" swipeable color="black" align="justify">
-        <q-tab label="Admin Board" slot="title" default icon="dashboard" @select="openAdminBoard" />
-        <q-tab label="Student board" slot="title" icon="developer_board" @select="openStudentBoard" />
+      <q-tabs underline-color="secondary" swipeable color="white text-black" align="justify">
+        <q-tab label="admin Board" slot="title" default icon="dashboard" @select="openbyteball_adminBoard" />
+        <q-tab label="community board" slot="title" icon="developer_board" @select="openbyteball_communityBoard" />
       </q-tabs>
       <!-- // random string generator for urls https://helloacm.com/api/random/?n=128 -->
       <div class="row justify-center">
@@ -188,13 +190,13 @@ export default {
       thumbnail_files: [],
       pp_fileURL: null,
       thumbnail_fileURL: null,
-      wheretoPost: 'admin/',
+      wheretoPost: 'byteball_admin/',
       auth_text: '',
       error_auth_code: false,
-      admin_keys: [],
-      student_keys: [],
-      canPostInAdmin: false,
-      canPostInStudent: false,
+      byteball_admin_keys: [],
+      byteball_community_keys: [],
+      canPostInbyteball_admin: false,
+      canPostInbyteball_community: false,
       readonly_code: false,
       posting_now: false,
       disable_confirm: false
@@ -219,19 +221,18 @@ export default {
       this.thumbnail_files = []
       this.thumbnail = ''
     },
-    openStudentBoard () {
+    openbyteball_communityBoard () {
       this.$q.loading.show()
-      // this.$router.push('/student')
-      this.wheretoPost = 'student/'
+      // this.$router.push('/byteball_community')
+      this.wheretoPost = 'byteball_community/'
       // console.log('opening S board')
       this.$bookref.off()
       this.books = []
-      this.$studentref.on('value', (snapshoti) => {
+      this.$byteball_communityref.on('value', (snapshoti) => {
         // console.log(snapshoti.val())
         if (this.posting_now === false) {
           this.$q.loading.hide()
         }
-        console.log('"openStudentBoard"')
         // console.log('"Printing selection"')
         this.books = snapshoti.val()
         // console.log(this.books.length)
@@ -280,36 +281,36 @@ export default {
         this.error_auth_code = false
         let mobileNo = '+91' + this.text
         // console.log(mobileNo)
-        if (this.wheretoPost === 'student/') {
-          this.canPostInStudent = false
-          this.canPostInAdmin = false // These lines here and in below block ensure that after posting on student the user cannot post in admin.
-          for (var i = 0; i < this.student_keys.length; i++) {
-            if (this.student_keys[i].Key.toString() === this.auth_text && this.student_keys[i].Can_Use === 'true') {
-              this.canPostInStudent = true
-              this.canPostInAdmin = false
+        if (this.wheretoPost === 'byteball_community/') {
+          this.canPostInbyteball_community = false
+          this.canPostInbyteball_admin = false // These lines here and in below block ensure that after posting on byteball_community the user cannot post in byteball_admin.
+          for (var i = 0; i < this.byteball_community_keys.length; i++) {
+            if (this.byteball_community_keys[i].Key.toString() === this.auth_text && this.byteball_community_keys[i].Can_Use === 'true') {
+              this.canPostInbyteball_community = true
+              this.canPostInbyteball_admin = false
               this.readonly_code = true
             }
           }
-          if (this.canPostInStudent === false) {
+          if (this.canPostInbyteball_community === false) {
             this.$q.notify('Your code is not correct or your code is disabled.')
             this.$q.loading.hide()
           }
-        } else if (this.wheretoPost === 'admin/') {
-          this.canPostInStudent = false
-          this.canPostInAdmin = false
-          for (var ia = 0; ia < this.admin_keys.length; ia++) {
-            if (this.admin_keys[ia].Key.toString() === this.auth_text && this.admin_keys[ia].Can_Use === 'true') {
-              this.canPostInStudent = false
-              this.canPostInAdmin = true
+        } else if (this.wheretoPost === 'byteball_admin/') {
+          this.canPostInbyteball_community = false
+          this.canPostInbyteball_admin = false
+          for (var ia = 0; ia < this.byteball_admin_keys.length; ia++) {
+            if (this.byteball_admin_keys[ia].Key.toString() === this.auth_text && this.byteball_admin_keys[ia].Can_Use === 'true') {
+              this.canPostInbyteball_community = false
+              this.canPostInbyteball_admin = true
               this.readonly_code = true
             }
           }
-          if (this.canPostInAdmin === false) {
+          if (this.canPostInbyteball_admin === false) {
             this.$q.notify('Your code is not correct or your code is disabled.')
             this.$q.loading.hide()
           }
         }
-        if (this.canPostInAdmin === true || this.canPostInStudent === true) {
+        if (this.canPostInbyteball_admin === true || this.canPostInbyteball_community === true) {
           try {
             this.$firebase.auth().signInWithPhoneNumber(mobileNo, window.recaptchaVerifier).then((confirmationResult) => {
               window.confirmationResult = confirmationResult
@@ -336,12 +337,12 @@ export default {
         }
       }
     },
-    openAdminBoard () {
+    openbyteball_adminBoard () {
       this.$q.loading.show()
       // console.log('opening A board')
-      this.$studentref.off()
+      this.$byteball_communityref.off()
       this.books = []
-      this.wheretoPost = 'admin/'
+      this.wheretoPost = 'byteball_admin/'
       this.$bookref.on('value', (snapshot) => {
         // console.log(snapshot.val())
         this.books = snapshot.val()
@@ -349,7 +350,6 @@ export default {
         if (this.posting_now === false) {
           this.$q.loading.hide()
         }
-        console.log('"openAdminBoard"')
         // console.log(this.books[1]['Random Seed'])
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
@@ -365,37 +365,37 @@ export default {
       this.opened = false
     },
     async publishPost () { // First checks all validation -> Upload Profile Pic -> Uplaod Thumbnail -> post on firebase
-      if (this.wheretoPost === 'student/') {
-        this.canPostInStudent = false
-        this.canPostInAdmin = false // These lines here and in below block ensure that after posting on student the user cannot post in admin.
-        for (var i = 0; i < this.student_keys.length; i++) {
-          if (this.student_keys[i].Key.toString() === this.auth_text && this.student_keys[i].Can_Use === 'true') {
-            this.canPostInStudent = true
-            this.canPostInAdmin = false
+      if (this.wheretoPost === 'byteball_community/') {
+        this.canPostInbyteball_community = false
+        this.canPostInbyteball_admin = false // These lines here and in below block ensure that after posting on byteball_community the user cannot post in byteball_admin.
+        for (var i = 0; i < this.byteball_community_keys.length; i++) {
+          if (this.byteball_community_keys[i].Key.toString() === this.auth_text && this.byteball_community_keys[i].Can_Use === 'true') {
+            this.canPostInbyteball_community = true
+            this.canPostInbyteball_admin = false
             this.readonly_code = true
           }
         }
-        if (this.canPostInStudent === false) {
+        if (this.canPostInbyteball_community === false) {
           this.$q.notify('Your code is not correct or your code is disabled.')
           this.$q.loading.hide()
         }
-      } else if (this.wheretoPost === 'admin/') {
-        this.canPostInStudent = false
-        this.canPostInAdmin = false
-        for (var ia = 0; ia < this.admin_keys.length; ia++) {
-          if (this.admin_keys[ia].Key.toString() === this.auth_text && this.admin_keys[ia].Can_Use === 'true') {
-            this.canPostInStudent = false
-            this.canPostInAdmin = true
+      } else if (this.wheretoPost === 'byteball_admin/') {
+        this.canPostInbyteball_community = false
+        this.canPostInbyteball_admin = false
+        for (var ia = 0; ia < this.byteball_admin_keys.length; ia++) {
+          if (this.byteball_admin_keys[ia].Key.toString() === this.auth_text && this.byteball_admin_keys[ia].Can_Use === 'true') {
+            this.canPostInbyteball_community = false
+            this.canPostInbyteball_admin = true
             this.readonly_code = true
           }
         }
-        if (this.canPostInAdmin === false) {
+        if (this.canPostInbyteball_admin === false) {
           this.$q.notify('Your code is not correct or your code is disabled.')
           this.$q.loading.hide()
         }
       }
       await this.setTimeStamp() // Updating time here everytime before posting.
-      if (this.canPostInAdmin === true || this.canPostInStudent === true) {
+      if (this.canPostInbyteball_admin === true || this.canPostInbyteball_community === true) {
         this.$firebase.auth().signInAnonymously().catch((error) => {
           // Handle Errors here.
           this.$q.notify(error.message)
@@ -403,7 +403,7 @@ export default {
         })
         // await this.getdata()
         if (this.$v.text.$invalid) {
-          this.$q.notify('10 Digit Mobile number is required.')
+          this.$q.notify('Mobile number is required.')
           this.error_mobile = true
         } else if (this.$v.thumbnail.$invalid) {
           this.$q.notify('A Thumbnail image or video is required')
@@ -448,8 +448,8 @@ export default {
             let formDatap = new FormData()
             // console.log(this.pp_files[0])
             formDatap.append('file', this.pp_files[0])
-            formDatap.append('tags', `gndu, board, notice`)
-            formDatap.append('upload_preset', 'myldschl')
+            formDatap.append('tags', `byteball, board, notice`)
+            formDatap.append('upload_preset', 'ggo7nnbv')
             formDatap.append('api_key', '985345875982584')
             formDatap.append('timestamp', (this.timestamp / 1000) | 0)
             this.$q.loading.show({message: 'Uploading Profile Pic...'})
@@ -465,8 +465,8 @@ export default {
               // Thumbnail upload...
               let formData2 = new FormData()
               formData2.append('file', this.thumbnail_files[0])
-              formData2.append('tags', `gndu, board, notice`)
-              formData2.append('upload_preset', 'myldschl')
+              formData2.append('tags', `byteball, board, notice`)
+              formData2.append('upload_preset', 'ggo7nnbv')
               formData2.append('api_key', '985345875982584')
               formData2.append('timestamp', (this.timestamp / 1000) | 0)
               this.$q.loading.show({message: 'Uploading Thumbnail Pic...'})
@@ -550,9 +550,8 @@ export default {
       })
     },
     getdata () {
-      console.log('"getdata"')
-      if (this.wheretoPost === 'student/') {
-        this.$studentref.on('value', (snapshot) => {
+      if (this.wheretoPost === 'byteball_community/') {
+        this.$byteball_communityref.on('value', (snapshot) => {
           // console.log(snapshot.val())
           this.books = snapshot.val()
           if (this.posting_now === false) {
@@ -561,7 +560,7 @@ export default {
         }, function (errorObject) {
           console.log('The read failed: ' + errorObject.code)
         })
-      } else if (this.wheretoPost === 'admin/') {
+      } else if (this.wheretoPost === 'byteball_admin/') {
         this.$bookref.on('value', (snapshot) => {
           // console.log(snapshot.val())
           this.books = snapshot.val()
@@ -572,18 +571,18 @@ export default {
           console.log('The read failed: ' + errorObject.code)
         })
       }
-      this.$adminKeys.on('value', (snapshot) => {
+      this.$byteball_adminKeys.on('value', (snapshot) => {
         // console.log(snapshot.val())
-        this.admin_keys = snapshot.val()
+        this.byteball_admin_keys = snapshot.val()
         if (this.posting_now === false) {
           this.$q.loading.hide()
         }
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
       })
-      this.$studentKeys.on('value', (snapshot) => {
+      this.$byteball_communityKeys.on('value', (snapshot) => {
         // console.log(snapshot.val())
-        this.student_keys = snapshot.val()
+        this.byteball_community_keys = snapshot.val()
         if (this.posting_now === false) {
           this.$q.loading.hide()
         }
@@ -632,7 +631,7 @@ export default {
   validations: {
     text: {
       required,
-      minLength: minLength(10)
+      minLength: minLength(6)
     },
     thumbnail: {
       required

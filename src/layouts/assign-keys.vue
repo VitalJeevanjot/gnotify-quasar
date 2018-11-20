@@ -27,8 +27,8 @@
         </div>
       </div>
       <div class="row justify-center">
-        <q-btn label="Create Admin key" @click.native="createAdminKey" class="q-mr-sm q-mt-sm" :hidden="hide" />
-        <q-btn label="Create Student key" @click.native="createStudentKey" class="q-ml-sm q-mt-sm" :hidden="hide" />
+        <q-btn label="Create byteball_admin key" @click.native="createbyteball_adminKey" class="q-mr-sm q-mt-sm" :hidden="hide" />
+        <q-btn label="Create byteball_community key" @click.native="createbyteball_communityKey" class="q-ml-sm q-mt-sm" :hidden="hide" />
       </div>
       <div class="row justify-center q-title">
         {{this.made_key}}
@@ -45,8 +45,8 @@ export default {
     return {
       text: '',
       keys: [],
-      admin_keys: [],
-      student_keys: [],
+      byteball_admin_keys: [],
+      byteball_community_keys: [],
       hide: true,
       mobile_no: '',
       new_key: null,
@@ -62,30 +62,30 @@ export default {
         this.hide = true
       }
     },
-    createAdminKey () {
+    createbyteball_adminKey () {
       this.new_key = Math.round((Math.random() * (900000000) + 100000000)).toString()
-      this.$firebase.database().ref('admin_keys/' + this.admin_keys.length).set({
+      this.$firebase.database().ref('byteball_admin_keys/' + this.byteball_admin_keys.length).set({
         Can_Use: 'true',
         Key: this.new_key,
         authorize_to: this.mobile_no
       }).then(() => {
         this.$q.notify({
-          message: 'New Admin Key Created',
+          message: 'New byteball_admin Key Created',
           color: 'green'
         })
         this.made_key = this.new_key
         this.reReadValues()
       })
     },
-    createStudentKey () {
+    createbyteball_communityKey () {
       this.new_key = Math.round((Math.random() * (9000000000) + 1000000000)).toString()
-      this.$firebase.database().ref('student_keys/' + this.student_keys.length).set({
+      this.$firebase.database().ref('byteball_community_keys/' + this.byteball_community_keys.length).set({
         Can_Use: 'true',
         Key: this.new_key,
         authorize_to: this.mobile_no
       }).then(() => {
         this.$q.notify({
-          message: 'New Student Key Created',
+          message: 'New byteball_community Key Created',
           color: 'green'
         })
         this.made_key = this.new_key
@@ -98,13 +98,13 @@ export default {
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
       })
-      this.$adminKeys.once('value', (snapshot) => {
-        this.admin_keys = snapshot.val()
+      this.$byteball_adminKeys.once('value', (snapshot) => {
+        this.byteball_admin_keys = snapshot.val()
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
       })
-      this.$studentKeys.once('value', (snapshot) => {
-        this.student_keys = snapshot.val()
+      this.$byteball_communityKeys.once('value', (snapshot) => {
+        this.byteball_community_keys = snapshot.val()
       }, function (errorObject) {
         console.log('The read failed: ' + errorObject.code)
       })

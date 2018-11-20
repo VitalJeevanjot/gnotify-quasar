@@ -17,9 +17,9 @@ let db = app.database()
 export default ({ app, router, Vue }) => {
   // something to do
   Vue.prototype.$firebase = Firebase
-  Vue.prototype.$bookref = db.ref('admin')
-  Vue.prototype.$studentref = db.ref('student')
-  Vue.prototype.$adminKeys = db.ref('admin_keys')
-  Vue.prototype.$studentKeys = db.ref('student_keys')
+  Vue.prototype.$bookref = db.ref('byteball_admin')
+  Vue.prototype.$byteball_communityref = db.ref('byteball_community')
+  Vue.prototype.$byteball_adminKeys = db.ref('byteball_admin_keys')
+  Vue.prototype.$byteball_communityKeys = db.ref('byteball_community_keys')
   Vue.prototype.$specialKeys = db.ref('Special_Key')
 }

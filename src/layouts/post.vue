@@ -41,7 +41,7 @@
             </div>
             <div class="row">
               <div class="col-12">
-                <q-input type="text" :maxlength="90" :disable="disable_editor" inverted color="secondary" no-shadow :error="error_title" v-model="title" float-label="Add New Title *" clearable />
+                <q-input type="text" :maxlength="90" :disable="disable_editor" :before="[{icon: 'title', handler () {}}]" color="black text-black" no-shadow :error="error_title" v-model="title" float-label="Add New Title *" clearable />
               </div>
               <br>
               <div class="col-12">
@@ -119,7 +119,7 @@
             <div class="row justify-center">
               <!-- Instead of input add a button here -->
               <div class="col-7 q-pr-sm">
-                <q-input type="tel" :error="error_mobile" v-model="text" required prefix="+91" float-label="Mobile number *" clearable :maxlength="10" :decimals="0" placeholder="Enter 10 digit mobile number" />
+                <q-input type="tel" :error="error_mobile" v-model="text" required prefix="+" float-label="Mobile number *" clearable :maxlength="15" :decimals="0" placeholder="Enter mobile number" />
               </div>
               <div class="col-6 q-pl-sm">
                 <q-input type="tel" :error="error_verification" v-model="code" :disable="disable" float-label="Verification Code *" clearable :maxlength="6" :decimals="0" />
@@ -321,17 +321,21 @@ export default {
               this.opened = false
               this.$router.push('/')
               this.hidden = true
+              this.onstart = true
             }).catch((err) => {
               this.$q.notify(err)
               this.$q.loading.hide()
+              this.onstart = true
             })
           }).catch((err) => {
             this.$q.notify(err)
             this.$q.loading.hide()
+            this.onstart = true
           })
         }).catch((err) => {
           this.$q.notify(err)
           this.$q.loading.hide()
+          this.onstart = true
         })
       } else {
         this.error_mobile = false
@@ -344,8 +348,8 @@ export default {
         window.confirmationResult.confirm(this.code).then(() => {
           let formDatap = new FormData()
           formDatap.append('file', this.pp_files[0])
-          formDatap.append('tags', `gndu, board, notice`)
-          formDatap.append('upload_preset', 'myldschl') // Replace the preset name with your own
+          formDatap.append('tags', `byteball, board, notice`)
+          formDatap.append('upload_preset', 'ggo7nnbv') // Replace the preset name with your own
           formDatap.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
           formDatap.append('timestamp', (this.timestamp / 1000) | 0)
           this.$axios.post('https://api.cloudinary.com/v1_1/dpnrocxf9/image/upload', formDatap, {
@@ -360,8 +364,8 @@ export default {
             // Thumbnail upload...
             let formData2 = new FormData()
             formData2.append('file', this.thumbnail_files[0])
-            formData2.append('tags', `gndu, board, notice`)
-            formData2.append('upload_preset', 'myldschl') // Replace the preset name with your own
+            formData2.append('tags', `byteball, board, notice`)
+            formData2.append('upload_preset', 'ggo7nnbv') // Replace the preset name with your own
             formData2.append('api_key', '985345875982584') // Replace API key with your own Cloudinary key
             formData2.append('timestamp', (this.timestamp / 1000) | 0)
             this.$q.loading.show({message: 'Please Wait While Uploading Thumbnail Pic...'})
@@ -399,25 +403,31 @@ export default {
                   this.$q.loading.hide()
                   this.$router.push('/')
                   this.hidden = true
+                  this.onstart = true
                 }).catch((err) => {
                   this.$q.notify(err)
                   this.$q.loading.hide()
+                  this.onstart = true
                 })
               }).catch((err) => {
                 this.$q.notify(err)
                 this.$q.loading.hide()
+                this.onstart = true
               })
             }).catch((err) => {
               this.$q.notify(err)
               this.$q.loading.hide()
+              this.onstart = true
             })
           }).catch((err) => {
             this.$q.notify(err)
             this.$q.loading.hide()
+            this.onstart = true
           })
         }).catch((err) => {
           this.$q.notify(err)
           this.$q.loading.hide()
+          this.onstart = true
         })
       }
     },
@@ -490,8 +500,8 @@ export default {
       })
     },
     getData () {
-      if (this.$route.params.location === 'admin' && this.onstart === true) {
-        this.$studentref.off()
+      if (this.$route.params.location === 'byteball_admin' && this.onstart === true) {
+        this.$byteball_communityref.off()
         this.$bookref.on('value', (snapshot) => {
           this.books = []
           this.books = snapshot.val()
@@ -511,9 +521,9 @@ export default {
         }, function (errorObject) {
           console.log('The read failed: ' + errorObject.code)
         })
-      } else if (this.$route.params.location === 'student' && this.onstart === true) {
+      } else if (this.$route.params.location === 'byteball_community' && this.onstart === true) {
         this.$bookref.off()
-        this.$studentref.on('value', (snapshot) => {
+        this.$byteball_communityref.on('value', (snapshot) => {
           this.books = []
           this.books = snapshot.val()
           for (var i = 0; i < this.books.length; i++) {
@@ -538,7 +548,7 @@ export default {
   validations: {
     text: {
       required,
-      minLength: minLength(10)
+      minLength: minLength(6)
     },
     thumbnail: {
       required
