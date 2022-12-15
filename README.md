@@ -1,3 +1,3 @@
 # Quasar App
 
-> WIP
+> Blog app
